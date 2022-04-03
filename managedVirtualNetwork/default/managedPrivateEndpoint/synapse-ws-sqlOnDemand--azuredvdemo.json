@@ -1,0 +1,10 @@
+{
+	"name": "synapse-ws-sqlOnDemand--azuredvdemo",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/abecf403-c605-409c-acba-6459bd193009/resourceGroups/PrimaryRsc/providers/Microsoft.Synapse/workspaces/azuredvdemo",
+		"groupId": "sqlOnDemand",
+		"fqdns": [
+			"azuredvdemo-ondemand.acd92239-3586-411a-a41d-b7a4fb3e116f.sql.azuresynapse.net"
+		]
+	}
+}
