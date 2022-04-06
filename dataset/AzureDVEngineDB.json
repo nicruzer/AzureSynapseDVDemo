@@ -5,8 +5,21 @@
 			"referenceName": "AzureDVEngineDB_LS",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"TableSchema": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "SqlServerTable",
-		"schema": []
+		"schema": [],
+		"typeProperties": {
+			"schema": "table_schema",
+			"table": "table_name"
+		}
 	}
 }
