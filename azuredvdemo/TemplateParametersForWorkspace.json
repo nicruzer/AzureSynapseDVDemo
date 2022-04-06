@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "azuredvdemo"
+		},
+		"azuredvdemo-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"AzureDVEngineDB_LS_connectionString": {
+			"value": ""
+		},
+		"AzureDV_keyVault_properties_typeProperties_baseUrl": {
+			"value": "https://AzureDVKeyVault.vault.azure.net/"
+		},
+		"azuredvdemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://synapsedvdemo.dfs.core.windows.net"
+		}
+	}
+}
