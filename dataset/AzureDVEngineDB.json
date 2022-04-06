@@ -1,0 +1,12 @@
+{
+	"name": "AzureDVEngineDB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDVEngineDB_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	}
+}
