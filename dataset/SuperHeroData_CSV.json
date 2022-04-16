@@ -1,5 +1,5 @@
 {
-	"name": "SuperHeroData",
+	"name": "SuperHeroData_CSV",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
