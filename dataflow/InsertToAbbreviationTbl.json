@@ -1,0 +1,91 @@
+{
+	"name": "InsertToAbbreviationTbl",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference"
+					},
+					"name": "ADVEngine"
+				},
+				{
+					"linkedService": {
+						"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "AbbreviationList"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Id as integer,",
+				"          Class as string,",
+				"          Type as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_COMMITTED',",
+				"     query: 'SELECT Id, Class, Type\\nFROM dbo.AbbreviationClassType',",
+				"     format: 'query') ~> ADVEngine",
+				"source(output(",
+				"          Class as string,",
+				"          Abbreviation as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     limit: 100,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'synapsedvdemo',",
+				"     folderPath: 'Ad hoc',",
+				"     fileName: 'AbbreviationList.csv',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> AbbreviationList",
+				"ADVEngine, AbbreviationList join(Type == AbbreviationList@Class,",
+				"     joinType:'inner',",
+				"     broadcast: 'auto')~> join1",
+				"join1 select(mapColumn(",
+				"          AbbreviationClassTypeId = Id,",
+				"          Value = Abbreviation",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(Style = \"Placeholder\") ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
