@@ -1,0 +1,40 @@
+{
+	"name": "ImportAbbreviationList",
+	"properties": {
+		"activities": [
+			{
+				"name": "DF_ImportAbbList",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "InsertToAbbreviationTbl",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"ADVEngine": {
+								"TableSchema": "dbo"
+							},
+							"sink1": {
+								"TableSchema": "dbo"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
