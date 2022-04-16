@@ -8,10 +8,10 @@
 		"AzureDVEngineDB_LS_connectionString": {
 			"value": ""
 		},
-		"azuredvdemo-WorkspaceDefaultSqlServer_connectionString": {
+		"AzureSQLSampleDB_connectionString": {
 			"value": ""
 		},
-		"AzureSQLSampleDB_connectionString": {
+		"azuredvdemo-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
 		"AzureDV_keyVault_properties_typeProperties_baseUrl": {
