@@ -20,10 +20,12 @@
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"ADVEngine": {
-								"TableSchema": "dbo"
+								"TableSchema": "dbo",
+								"TableName": "AbbreviationClassType"
 							},
 							"sink1": {
-								"TableSchema": "dbo"
+								"TableSchema": "dbo",
+								"TableName": "Abbreviation"
 							}
 						}
 					},
