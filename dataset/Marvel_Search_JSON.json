@@ -1,9 +1,12 @@
 {
-	"name": "Dataset",
+	"name": "Marvel_Search_JSON",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
 			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "External"
 		},
 		"annotations": [],
 		"type": "Json",
