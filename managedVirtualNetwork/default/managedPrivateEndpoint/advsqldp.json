@@ -1,0 +1,7 @@
+{
+	"name": "advsqldp",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/abecf403-c605-409c-acba-6459bd193009/resourceGroups/PrimaryRsc/providers/Microsoft.Synapse/workspaces/azuredv",
+		"groupId": "sql"
+	}
+}
