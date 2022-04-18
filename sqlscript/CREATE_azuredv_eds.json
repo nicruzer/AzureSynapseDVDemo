@@ -1,0 +1,17 @@
+{
+	"name": "CREATE_azuredv_eds",
+	"properties": {
+		"content": {
+			"query": "CREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/Data/'\n)\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
