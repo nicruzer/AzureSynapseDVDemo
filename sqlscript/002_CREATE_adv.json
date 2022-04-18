@@ -1,0 +1,17 @@
+{
+	"name": "002_CREATE_adv",
+	"properties": {
+		"content": {
+			"query": "CREATE EXTERNAL FILE FORMAT [ADV_JSON_DATA_EFF] \nWITH (\n\tFORMAT_TYPE = DELIMITEDTEXT, \n\tFORMAT_OPTIONS (\n\t\tFIELD_TERMINATOR = '0x0b', \n\t\tUSE_TYPE_DEFAULT = False\n\t)\n)\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
