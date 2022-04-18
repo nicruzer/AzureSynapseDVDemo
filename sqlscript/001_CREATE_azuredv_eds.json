@@ -1,6 +1,9 @@
 {
-	"name": "CREATE_azuredv_eds",
+	"name": "001_CREATE_azuredv_eds",
 	"properties": {
+		"folder": {
+			"name": "Framework"
+		},
 		"content": {
 			"query": "CREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/Data/'\n)\n",
 			"metadata": {
