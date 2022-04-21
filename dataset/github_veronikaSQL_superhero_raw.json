@@ -1,0 +1,134 @@
+{
+	"name": "github_veronikaSQL_superhero_raw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "HTTPLink",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "External"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "veronikaSQL/Superhero-DataVault/main/Data/superherodb/SUPERHERO_RAW.csv"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "NAME",
+				"type": "String"
+			},
+			{
+				"name": "URL",
+				"type": "String"
+			},
+			{
+				"name": "INTELLIGENCE",
+				"type": "String"
+			},
+			{
+				"name": "STRENGTH",
+				"type": "String"
+			},
+			{
+				"name": "SPEED",
+				"type": "String"
+			},
+			{
+				"name": "DURABILITY",
+				"type": "String"
+			},
+			{
+				"name": "POWER",
+				"type": "String"
+			},
+			{
+				"name": "COMBAT",
+				"type": "String"
+			},
+			{
+				"name": "FULL_NAME",
+				"type": "String"
+			},
+			{
+				"name": "ALTER_EGOS",
+				"type": "String"
+			},
+			{
+				"name": "ALIASES",
+				"type": "String"
+			},
+			{
+				"name": "PLACE_OF_BIRTH",
+				"type": "String"
+			},
+			{
+				"name": "FIRST_APPEARANCE",
+				"type": "String"
+			},
+			{
+				"name": "CREATOR",
+				"type": "String"
+			},
+			{
+				"name": "ALIGNMENT",
+				"type": "String"
+			},
+			{
+				"name": "GENDER",
+				"type": "String"
+			},
+			{
+				"name": "RACE",
+				"type": "String"
+			},
+			{
+				"name": "HEIGHT",
+				"type": "String"
+			},
+			{
+				"name": "WEIGHT",
+				"type": "String"
+			},
+			{
+				"name": "EYE_COLOR",
+				"type": "String"
+			},
+			{
+				"name": "HAIR_COLOR",
+				"type": "String"
+			},
+			{
+				"name": "OCCUPATION",
+				"type": "String"
+			},
+			{
+				"name": "BASE",
+				"type": "String"
+			},
+			{
+				"name": "TEAM_AFFILIATION",
+				"type": "String"
+			},
+			{
+				"name": "RELATIVES",
+				"type": "String"
+			},
+			{
+				"name": "SKIN_COLOR",
+				"type": "String"
+			},
+			{
+				"name": "TOTAL_POWER",
+				"type": "String"
+			}
+		]
+	}
+}
