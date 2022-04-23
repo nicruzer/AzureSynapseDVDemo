@@ -5,7 +5,7 @@
 			"name": "Framework"
 		},
 		"content": {
-			"query": "CREATE SCHEMA source\nGO\nCREATE SCHEMA stage\nGO\nCREATE SCHEMA vault\nGO\nCREATE SCHEMA mart\nGO",
+			"query": "CREATE SCHEMA source\nGO\nCREATE SCHEMA stage1\nGO\nCREATE SCHEMA stage2\nGO\nCREATE SCHEMA vault\nGO\nCREATE SCHEMA mart\nGO",
 			"metadata": {
 				"language": "sql"
 			},
