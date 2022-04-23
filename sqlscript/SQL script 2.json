@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 2",
+	"properties": {
+		"content": {
+			"query": "DROP EXTERNAL DATA SOURCE [ADV_DATA_EDS]\nGO\n\nCREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH \n(\tTYPE = BLOB_STORAGE,\n\tLOCATION = N'abfss://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data'\n);\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
