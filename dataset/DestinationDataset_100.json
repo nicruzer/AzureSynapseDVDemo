@@ -1,0 +1,20 @@
+{
+	"name": "DestinationDataset_100",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Stage1/marvel_hero",
+				"fileSystem": "synapsedvdemo"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
