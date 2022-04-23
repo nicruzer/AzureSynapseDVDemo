@@ -1,0 +1,17 @@
+{
+	"name": "CREATE_EFF_CSV",
+	"properties": {
+		"content": {
+			"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT\n)\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "AzureDVEngine",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
