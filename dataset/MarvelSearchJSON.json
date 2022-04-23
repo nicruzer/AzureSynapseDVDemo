@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "*.json",
+				"fileName": "Abner_Jenkins.json",
 				"folderPath": "Data/marvel_search",
 				"fileSystem": "synapsedvdemo"
 			}
