@@ -3,11 +3,11 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "GetJSONFiles",
-				"type": "GetMetadata",
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
-					"timeout": "7.00:00:00",
+					"timeout": "1.00:00:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -15,18 +15,15 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataset": {
-						"referenceName": "Marvel_Search_JSON",
-						"type": "DatasetReference"
+					"dataflow": {
+						"referenceName": "MoveMarvelSearch_JSON",
+						"type": "DataFlowReference"
 					},
-					"fieldList": [],
-					"storeSettings": {
-						"type": "AzureBlobFSReadSettings",
-						"enablePartitionDiscovery": false
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
 					},
-					"formatSettings": {
-						"type": "JsonReadSettings"
-					}
+					"traceLevel": "Fine"
 				}
 			}
 		],
