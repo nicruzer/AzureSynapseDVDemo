@@ -10,6 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "*.json",
 				"folderPath": "Data/marvel_search",
 				"fileSystem": "synapsedvdemo"
 			}
