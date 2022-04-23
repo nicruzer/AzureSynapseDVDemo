@@ -14,10 +14,18 @@
 			],
 			"sinks": [
 				{
+					"dataset": {
+						"referenceName": "Parquet1",
+						"type": "DatasetReference"
+					},
 					"name": "sink1"
 				}
 			],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "flatten1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          aliases as string[],",
@@ -41,16 +49,24 @@
 				"     ignoreNoFilesFound: false,",
 				"     rowUrlColumn: 'FileName',",
 				"     documentForm: 'arrayOfDocuments') ~> marvelSearchJsonFiles",
-				"marvelSearchJsonFiles sink(allowSchemaDrift: true,",
+				"marvelSearchJsonFiles foldDown(unroll(aliases),",
+				"     mapColumn(",
+				"          aliases,",
+				"          description,",
+				"          name,",
+				"          superName,",
+				"          FileName",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     store: 'cache',",
-				"     format: 'inline',",
-				"     output: true,",
-				"     saveOrder: 1,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
 				"     preCommands: [],",
-				"     postCommands: []) ~> sink1"
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
