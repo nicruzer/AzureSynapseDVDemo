@@ -14,18 +14,10 @@
 			],
 			"sinks": [
 				{
-					"linkedService": {
-						"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
-						"type": "LinkedServiceReference"
-					},
 					"name": "sink1"
 				}
 			],
-			"transformations": [
-				{
-					"name": "select1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(output(",
 				"          aliases as string[],",
@@ -49,20 +41,16 @@
 				"     ignoreNoFilesFound: false,",
 				"     rowUrlColumn: 'FileName',",
 				"     documentForm: 'arrayOfDocuments') ~> marvelSearchJsonFiles",
-				"marvelSearchJsonFiles select(skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 sink(allowSchemaDrift: true,",
+				"marvelSearchJsonFiles sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'parquet',",
-				"     fileSystem: 'synapsedvdemo',",
-				"     folderPath: 'Stage1/marvel_hero',",
-				"     compressionCodec: 'snappy',",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1) ~> sink1"
+				"     store: 'cache',",
+				"     format: 'inline',",
+				"     output: true,",
+				"     saveOrder: 1,",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sink1"
 			]
 		}
 	}
