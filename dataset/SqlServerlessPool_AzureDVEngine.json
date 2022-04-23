@@ -1,0 +1,69 @@
+{
+	"name": "SqlServerlessPool_AzureDVEngine",
+	"properties": {
+		"annotations": [],
+		"type": "SqlPoolTable",
+		"schema": [
+			{
+				"name": "aliases",
+				"type": "nvarchar"
+			},
+			{
+				"name": "authors",
+				"type": "nvarchar"
+			},
+			{
+				"name": "description",
+				"type": "varchar"
+			},
+			{
+				"name": "images",
+				"type": "nvarchar"
+			},
+			{
+				"name": "name",
+				"type": "varchar"
+			},
+			{
+				"name": "partners",
+				"type": "nvarchar"
+			},
+			{
+				"name": "powers",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ranking",
+				"type": "nvarchar"
+			},
+			{
+				"name": "secretIdentities",
+				"type": "nvarchar"
+			},
+			{
+				"name": "species",
+				"type": "nvarchar"
+			},
+			{
+				"name": "superName",
+				"type": "varchar"
+			},
+			{
+				"name": "teams",
+				"type": "nvarchar"
+			},
+			{
+				"name": "urls",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "stage1",
+			"table": "marvel_search"
+		},
+		"sqlPool": {
+			"referenceName": "azuredvsdp",
+			"type": "SqlPoolReference"
+		}
+	}
+}
