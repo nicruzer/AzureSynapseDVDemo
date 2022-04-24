@@ -45,7 +45,6 @@
 				"     validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     keys:['name','superName','FileName'],",
 				"     store: 'cache',",
 				"     format: 'inline',",
 				"     output: true,",
