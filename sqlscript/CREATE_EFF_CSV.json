@@ -2,7 +2,7 @@
 	"name": "CREATE_EFF_CSV",
 	"properties": {
 		"content": {
-			"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT\n)\n",
+			"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS ( FIELD_TERMINATOR = ',', STRING_DELIMITER = '\"', FIRST_ROW = 2   )\n)\n\n",
 			"metadata": {
 				"language": "sql"
 			},
