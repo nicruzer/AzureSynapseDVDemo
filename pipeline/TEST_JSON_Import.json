@@ -5,7 +5,14 @@
 			{
 				"name": "Data flow1",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Script1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "1.00:00:00",
 					"retry": 0,
@@ -27,6 +34,63 @@
 					"cacheSinks": {
 						"firstRowOnly": true
 					}
+				}
+			},
+			{
+				"name": "EnsureStagingTableExists",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureDVEngineDB_LS",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "IF OBJECT_ID('stage1.marvel_search') IS NOT NULL\n    BEGIN\n        TRUNCATE TABLE [stage1].[marvel_search]\n    END\nELSE\n    BEGIN\n        SET ANSI_NULLS ON\n        SET QUOTED_IDENTIFIER ON\n\n        CREATE TABLE [stage1].[marvel_search]\n        ( \n            [aliases] [nvarchar](max)  NULL,\n            [authors] [nvarchar](max)  NULL,\n            [description] [varchar](256)  NULL,\n            [images] [nvarchar](max)  NULL,\n            [name] [varchar](256)  NULL,\n            [partners] [nvarchar](max)  NULL,\n            [powers] [nvarchar](max)  NULL,\n            [ranking] [nvarchar](max)  NULL,\n            [secretIdentities] [nvarchar](max)  NULL,\n            [species] [nvarchar](max)  NULL,\n            [superName] [varchar](256)  NULL,\n            [teams] [nvarchar](max)  NULL,\n            [urls] [nvarchar](max)  NULL\n        )\n    END\n"
+						}
+					]
+				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "EnsureStagingTableExists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureDVEngineDB_LS",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "INSERT INTO stage1.marvel_search (FileName, Name, superName, description, aliases,\nauthors, images, partners, powers, ranking, secretidentities, species, teams, urls)\nSELECT \n    base_hero.filename() AS FileName,\n    marvel_hero.[name], marvel_hero.superName, marvel_hero.[description],\n    marvel_hero.aliases, marvel_hero.authors, marvel_hero.images,\n    marvel_hero.partners, marvel_hero.powers, marvel_hero.ranking, marvel_hero.secretIdentities,\n    marvel_hero.species, marvel_hero.teams, marvel_hero.urls\nFROM OPENROWSET (\n    BULK 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/Data/marvel_search/**'\n    ,FORMAT = 'CSV'\n    ,FIELDTERMINATOR = '0x0b'\n    ,ROWTERMINATOR = '0X0b'\n    ,FIELDQUOTE = '0x0b'\n) WITH (doc NVARCHAR(MAX)) AS base_hero\n    CROSS APPLY OPENJSON(doc)\n        WITH (\n            aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n            authors NVARCHAR(MAX) '$.authors' AS JSON,\n            description VARCHAR(256),\n            images NVARCHAR(MAX) '$.images' AS JSON,\n            name VARCHAR(256),\n            partners NVARCHAR(MAX) '$.partners' AS JSON,\n            powers NVARCHAR(MAX) '$.powers' AS JSON,\n            ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n            secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n            species NVARCHAR(MAX) '$.species' AS JSON,\n            superName VARCHAR(256),\n            teams NVARCHAR(MAX) '$.teams' AS JSON,\n            urls NVARCHAR(MAX) '$.urls' AS JSON\n        ) AS marvel_hero "
+						}
+					]
 				}
 			}
 		],
