@@ -2,7 +2,7 @@
 	"name": "CREATE_EDS_SYNAPSEDVDEMO",
 	"properties": {
 		"content": {
-			"query": "CREATE EXTERNAL DATA SOURCE [EDS_SYNAPSEDVDEMO] WITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/'\n)\n",
+			"query": "CREATE EXTERNAL DATA SOURCE [EDS_SYNAPSEDVDEMO] \nWITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/'\n)\n",
 			"metadata": {
 				"language": "sql"
 			},
