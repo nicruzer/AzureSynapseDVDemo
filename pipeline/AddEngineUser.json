@@ -21,7 +21,8 @@
 				"typeProperties": {
 					"scripts": [
 						{
-							"type": "Query"
+							"type": "NonQuery",
+							"text": "CREATE USER [nicruzer@msn.com] FROM EXTERNAL PROVIDER"
 						}
 					]
 				}
