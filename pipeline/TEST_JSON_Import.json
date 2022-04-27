@@ -71,7 +71,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "BULK INSERT stage1.marvel_json_raw\nFROM 'synapsedvdemo/data/marvel_search/@{item().name}'\nWITH ( DATA_SOURCE = 'ADV_EDS')",
+											"value": "BULK INSERT stage1.marvel_json_raw\nFROM 'data/marvel_search/@{item().name}'\nWITH ( DATA_SOURCE = 'ADV_EDS')",
 											"type": "Expression"
 										}
 									}
