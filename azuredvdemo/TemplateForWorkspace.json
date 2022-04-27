@@ -15,6 +15,26 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSQLSampleDB'"
 		},
+		"GitHub_DataSource_credential": {
+			"type": "secureString",
+			"metadata": "Secure string for 'credential' of 'GitHub_DataSource'"
+		},
+		"GitHub_REST_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'GitHub_REST'"
+		},
+		"GitHub_web_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'GitHub_web'"
+		},
+		"HTTPLink_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'HTTPLink'"
+		},
+		"azuredv-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'azuredv-WorkspaceDefaultSqlServer'"
+		},
 		"azuredvdemo-WorkspaceDefaultSqlServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'azuredvdemo-WorkspaceDefaultSqlServer'"
@@ -22,6 +42,34 @@
 		"AzureDV_keyVault_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://AzureDVKeyVault.vault.azure.net/"
+		},
+		"GitHub_DataSource_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "nicruzer"
+		},
+		"GitHub_REST_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://github.com/veronikaSQL/Superhero-DataVault.git"
+		},
+		"GitHub_REST_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "nicruzer"
+		},
+		"GitHub_web_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://github.com/"
+		},
+		"GitHub_web_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "nicruzer"
+		},
+		"HTTPLink_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com/"
+		},
+		"HTTPLink_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "nicruzer"
 		},
 		"azuredvdemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
@@ -32,6 +80,48 @@
 		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/AddEngineUser')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "AddUser",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "AzureDVEngineDB_LS",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "NonQuery",
+									"text": "CREATE USER [nicruzer@msn.com] FROM EXTERNAL PROVIDER"
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngineDB_LS')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/ImportAbbreviationList')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
@@ -83,8 +173,107 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/InsertToAbbreviationTbl')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/dataflows/InsertToAbbreviationTbl')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/TEST_JSON_Import')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetJSONFiles",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "MarvelSearchJSON",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "JsonReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ImportEachFile",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "GetJSONFiles",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('GetJSONFiles').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "InsertFromJsonFile",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureDVEngineDB_LS",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "BULK INSERT stage1.marvel_json_raw\nFROM 'data/marvel_search/@{item().name}'\nWITH ( DATA_SOURCE = 'ADV_EDS')",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [
+					"JSON_Import"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/MarvelSearchJSON')]",
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngineDB_LS')]"
 			]
 		},
 		{
@@ -104,6 +293,9 @@
 					"TableName": {
 						"type": "string"
 					}
+				},
+				"folder": {
+					"name": "Framework"
 				},
 				"annotations": [],
 				"type": "SqlServerTable",
@@ -140,6 +332,9 @@
 						"type": "string"
 					}
 				},
+				"folder": {
+					"name": "External"
+				},
 				"annotations": [],
 				"type": "AzureSqlTable",
 				"schema": [],
@@ -156,6 +351,1236 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/AzureSQLSampleDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/MarvelSearchJSON')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Data/marvel_search",
+						"fileSystem": "synapsedvdemo"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"aliases": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"authors": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"description": {
+							"type": "string"
+						},
+						"images": {
+							"type": "object",
+							"properties": {
+								"background": {
+									"type": "null"
+								},
+								"thumbnail": {
+									"type": "string"
+								}
+							}
+						},
+						"mainColor": {
+							"type": "null"
+						},
+						"name": {
+							"type": "string"
+						},
+						"partners": {
+							"type": "array"
+						},
+						"powers": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"ranking": {
+							"type": "object",
+							"properties": {
+								"comicCount": {
+									"type": "integer"
+								},
+								"eventCount": {
+									"type": "integer"
+								},
+								"pageviewCount": {
+									"type": "integer"
+								},
+								"serieCount": {
+									"type": "integer"
+								},
+								"storyCount": {
+									"type": "integer"
+								}
+							}
+						},
+						"secretIdentities": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"species": {
+							"type": "array"
+						},
+						"superName": {
+							"type": "string"
+						},
+						"teams": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"urls": {
+							"type": "object",
+							"properties": {
+								"marvel": {
+									"type": "string"
+								},
+								"wikipedia": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Marvel_Search_JSON')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "External"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "*.json",
+						"folderPath": "Data/marvel_search",
+						"fileSystem": "synapsedvdemo"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"aliases": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"authors": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"description": {
+							"type": "string"
+						},
+						"images": {
+							"type": "object",
+							"properties": {
+								"background": {
+									"type": "null"
+								},
+								"thumbnail": {
+									"type": "null"
+								}
+							}
+						},
+						"mainColor": {
+							"type": "null"
+						},
+						"name": {
+							"type": "string"
+						},
+						"partners": {
+							"type": "array"
+						},
+						"powers": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"ranking": {
+							"type": "object",
+							"properties": {
+								"comicCount": {
+									"type": "integer"
+								},
+								"eventCount": {
+									"type": "integer"
+								},
+								"pageviewCount": {
+									"type": "integer"
+								},
+								"serieCount": {
+									"type": "integer"
+								},
+								"storyCount": {
+									"type": "integer"
+								}
+							}
+						},
+						"secretIdentities": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"species": {
+							"type": "array"
+						},
+						"superName": {
+							"type": "string"
+						},
+						"teams": {
+							"type": "array"
+						},
+						"urls": {
+							"type": "object",
+							"properties": {
+								"marvel": {
+									"type": "null"
+								},
+								"wikipedia": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Parquet1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Stage2",
+						"fileSystem": "synapsedvdemo"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SqlServerlessPool_AzureDVEngine')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "SqlPoolTable",
+				"schema": [
+					{
+						"name": "aliases",
+						"type": "nvarchar"
+					},
+					{
+						"name": "authors",
+						"type": "nvarchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "images",
+						"type": "nvarchar"
+					},
+					{
+						"name": "name",
+						"type": "varchar"
+					},
+					{
+						"name": "partners",
+						"type": "nvarchar"
+					},
+					{
+						"name": "powers",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ranking",
+						"type": "nvarchar"
+					},
+					{
+						"name": "secretIdentities",
+						"type": "nvarchar"
+					},
+					{
+						"name": "species",
+						"type": "nvarchar"
+					},
+					{
+						"name": "superName",
+						"type": "varchar"
+					},
+					{
+						"name": "teams",
+						"type": "nvarchar"
+					},
+					{
+						"name": "urls",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "stage1",
+					"table": "marvel_search"
+				},
+				"sqlPool": {
+					"referenceName": "azuredvsdp",
+					"type": "SqlPoolReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/sqlPools/azuredvsdp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SuperHeroData_CSV')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TableDirectory": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "External"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "Data/@{dataset().TableDirectory}",
+							"type": "Expression"
+						},
+						"fileSystem": "synapsedvdemo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/github_jbesomi_superheroNLPDataset')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HTTPLink",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "External"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": "jbesomi/texthero/master/dataset/superheroes_nlp_dataset.csv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "real_name",
+						"type": "String"
+					},
+					{
+						"name": "full_name",
+						"type": "String"
+					},
+					{
+						"name": "overall_score",
+						"type": "String"
+					},
+					{
+						"name": "history_text",
+						"type": "String"
+					},
+					{
+						"name": "powers_text",
+						"type": "String"
+					},
+					{
+						"name": "intelligence_score",
+						"type": "String"
+					},
+					{
+						"name": "strength_score",
+						"type": "String"
+					},
+					{
+						"name": "speed_score",
+						"type": "String"
+					},
+					{
+						"name": "durability_score",
+						"type": "String"
+					},
+					{
+						"name": "power_score",
+						"type": "String"
+					},
+					{
+						"name": "combat_score",
+						"type": "String"
+					},
+					{
+						"name": "superpowers",
+						"type": "String"
+					},
+					{
+						"name": "alter_egos",
+						"type": "String"
+					},
+					{
+						"name": "aliases",
+						"type": "String"
+					},
+					{
+						"name": "place_of_birth",
+						"type": "String"
+					},
+					{
+						"name": "first_appearance",
+						"type": "String"
+					},
+					{
+						"name": "creator",
+						"type": "String"
+					},
+					{
+						"name": "alignment",
+						"type": "String"
+					},
+					{
+						"name": "occupation",
+						"type": "String"
+					},
+					{
+						"name": "base",
+						"type": "String"
+					},
+					{
+						"name": "teams",
+						"type": "String"
+					},
+					{
+						"name": "relatives",
+						"type": "String"
+					},
+					{
+						"name": "gender",
+						"type": "String"
+					},
+					{
+						"name": "type_race",
+						"type": "String"
+					},
+					{
+						"name": "height",
+						"type": "String"
+					},
+					{
+						"name": "weight",
+						"type": "String"
+					},
+					{
+						"name": "eye_color",
+						"type": "String"
+					},
+					{
+						"name": "hair_color",
+						"type": "String"
+					},
+					{
+						"name": "skin_color",
+						"type": "String"
+					},
+					{
+						"name": "img",
+						"type": "String"
+					},
+					{
+						"name": "has_electrokinesis",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_constructs",
+						"type": "String"
+					},
+					{
+						"name": "has_mind_control_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_matter_manipulation",
+						"type": "String"
+					},
+					{
+						"name": "has_telepathy_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_mind_control",
+						"type": "String"
+					},
+					{
+						"name": "has_enhanced_hearing",
+						"type": "String"
+					},
+					{
+						"name": "has_dimensional_travel",
+						"type": "String"
+					},
+					{
+						"name": "has_element_control",
+						"type": "String"
+					},
+					{
+						"name": "has_size_changing",
+						"type": "String"
+					},
+					{
+						"name": "has_fire_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_fire_control",
+						"type": "String"
+					},
+					{
+						"name": "has_dexterity",
+						"type": "String"
+					},
+					{
+						"name": "has_reality_warping",
+						"type": "String"
+					},
+					{
+						"name": "has_illusions",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_beams",
+						"type": "String"
+					},
+					{
+						"name": "has_peak_human_condition",
+						"type": "String"
+					},
+					{
+						"name": "has_shapeshifting",
+						"type": "String"
+					},
+					{
+						"name": "has_heat_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_jump",
+						"type": "String"
+					},
+					{
+						"name": "has_self-sustenance",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_absorption",
+						"type": "String"
+					},
+					{
+						"name": "has_cold_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_magic",
+						"type": "String"
+					},
+					{
+						"name": "has_telekinesis",
+						"type": "String"
+					},
+					{
+						"name": "has_toxin_and_disease_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_telepathy",
+						"type": "String"
+					},
+					{
+						"name": "has_regeneration",
+						"type": "String"
+					},
+					{
+						"name": "has_immortality",
+						"type": "String"
+					},
+					{
+						"name": "has_teleportation",
+						"type": "String"
+					},
+					{
+						"name": "has_force_fields",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_manipulation",
+						"type": "String"
+					},
+					{
+						"name": "has_endurance",
+						"type": "String"
+					},
+					{
+						"name": "has_longevity",
+						"type": "String"
+					},
+					{
+						"name": "has_weapon-based_powers",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_blasts",
+						"type": "String"
+					},
+					{
+						"name": "has_enhanced_senses",
+						"type": "String"
+					},
+					{
+						"name": "has_invulnerability",
+						"type": "String"
+					},
+					{
+						"name": "has_stealth",
+						"type": "String"
+					},
+					{
+						"name": "has_marksmanship",
+						"type": "String"
+					},
+					{
+						"name": "has_flight",
+						"type": "String"
+					},
+					{
+						"name": "has_accelerated_healing",
+						"type": "String"
+					},
+					{
+						"name": "has_weapons_master",
+						"type": "String"
+					},
+					{
+						"name": "has_intelligence",
+						"type": "String"
+					},
+					{
+						"name": "has_reflexes",
+						"type": "String"
+					},
+					{
+						"name": "has_super_speed",
+						"type": "String"
+					},
+					{
+						"name": "has_durability",
+						"type": "String"
+					},
+					{
+						"name": "has_stamina",
+						"type": "String"
+					},
+					{
+						"name": "has_agility",
+						"type": "String"
+					},
+					{
+						"name": "has_super_strength",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/HTTPLink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/github_veronikaSQL_superhero_raw')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HTTPLink",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "External"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": "veronikaSQL/Superhero-DataVault/main/Data/superherodb/SUPERHERO_RAW.csv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "NAME",
+						"type": "String"
+					},
+					{
+						"name": "URL",
+						"type": "String"
+					},
+					{
+						"name": "INTELLIGENCE",
+						"type": "String"
+					},
+					{
+						"name": "STRENGTH",
+						"type": "String"
+					},
+					{
+						"name": "SPEED",
+						"type": "String"
+					},
+					{
+						"name": "DURABILITY",
+						"type": "String"
+					},
+					{
+						"name": "POWER",
+						"type": "String"
+					},
+					{
+						"name": "COMBAT",
+						"type": "String"
+					},
+					{
+						"name": "FULL_NAME",
+						"type": "String"
+					},
+					{
+						"name": "ALTER_EGOS",
+						"type": "String"
+					},
+					{
+						"name": "ALIASES",
+						"type": "String"
+					},
+					{
+						"name": "PLACE_OF_BIRTH",
+						"type": "String"
+					},
+					{
+						"name": "FIRST_APPEARANCE",
+						"type": "String"
+					},
+					{
+						"name": "CREATOR",
+						"type": "String"
+					},
+					{
+						"name": "ALIGNMENT",
+						"type": "String"
+					},
+					{
+						"name": "GENDER",
+						"type": "String"
+					},
+					{
+						"name": "RACE",
+						"type": "String"
+					},
+					{
+						"name": "HEIGHT",
+						"type": "String"
+					},
+					{
+						"name": "WEIGHT",
+						"type": "String"
+					},
+					{
+						"name": "EYE_COLOR",
+						"type": "String"
+					},
+					{
+						"name": "HAIR_COLOR",
+						"type": "String"
+					},
+					{
+						"name": "OCCUPATION",
+						"type": "String"
+					},
+					{
+						"name": "BASE",
+						"type": "String"
+					},
+					{
+						"name": "TEAM_AFFILIATION",
+						"type": "String"
+					},
+					{
+						"name": "RELATIVES",
+						"type": "String"
+					},
+					{
+						"name": "SKIN_COLOR",
+						"type": "String"
+					},
+					{
+						"name": "TOTAL_POWER",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/HTTPLink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/kaggle_superhero')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "superheroes_nlp_dataset.csv",
+						"folderPath": "Data/kaggle_superhero",
+						"fileSystem": "synapsedvdemo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "real_name",
+						"type": "String"
+					},
+					{
+						"name": "full_name",
+						"type": "String"
+					},
+					{
+						"name": "overall_score",
+						"type": "String"
+					},
+					{
+						"name": "history_text",
+						"type": "String"
+					},
+					{
+						"name": "powers_text",
+						"type": "String"
+					},
+					{
+						"name": "intelligence_score",
+						"type": "String"
+					},
+					{
+						"name": "strength_score",
+						"type": "String"
+					},
+					{
+						"name": "speed_score",
+						"type": "String"
+					},
+					{
+						"name": "durability_score",
+						"type": "String"
+					},
+					{
+						"name": "power_score",
+						"type": "String"
+					},
+					{
+						"name": "combat_score",
+						"type": "String"
+					},
+					{
+						"name": "superpowers",
+						"type": "String"
+					},
+					{
+						"name": "alter_egos",
+						"type": "String"
+					},
+					{
+						"name": "aliases",
+						"type": "String"
+					},
+					{
+						"name": "place_of_birth",
+						"type": "String"
+					},
+					{
+						"name": "first_appearance",
+						"type": "String"
+					},
+					{
+						"name": "creator",
+						"type": "String"
+					},
+					{
+						"name": "alignment",
+						"type": "String"
+					},
+					{
+						"name": "occupation",
+						"type": "String"
+					},
+					{
+						"name": "base",
+						"type": "String"
+					},
+					{
+						"name": "teams",
+						"type": "String"
+					},
+					{
+						"name": "relatives",
+						"type": "String"
+					},
+					{
+						"name": "gender",
+						"type": "String"
+					},
+					{
+						"name": "type_race",
+						"type": "String"
+					},
+					{
+						"name": "height",
+						"type": "String"
+					},
+					{
+						"name": "weight",
+						"type": "String"
+					},
+					{
+						"name": "eye_color",
+						"type": "String"
+					},
+					{
+						"name": "hair_color",
+						"type": "String"
+					},
+					{
+						"name": "skin_color",
+						"type": "String"
+					},
+					{
+						"name": "img",
+						"type": "String"
+					},
+					{
+						"name": "has_electrokinesis",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_constructs",
+						"type": "String"
+					},
+					{
+						"name": "has_mind_control_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_matter_manipulation",
+						"type": "String"
+					},
+					{
+						"name": "has_telepathy_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_mind_control",
+						"type": "String"
+					},
+					{
+						"name": "has_enhanced_hearing",
+						"type": "String"
+					},
+					{
+						"name": "has_dimensional_travel",
+						"type": "String"
+					},
+					{
+						"name": "has_element_control",
+						"type": "String"
+					},
+					{
+						"name": "has_size_changing",
+						"type": "String"
+					},
+					{
+						"name": "has_fire_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_fire_control",
+						"type": "String"
+					},
+					{
+						"name": "has_dexterity",
+						"type": "String"
+					},
+					{
+						"name": "has_reality_warping",
+						"type": "String"
+					},
+					{
+						"name": "has_illusions",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_beams",
+						"type": "String"
+					},
+					{
+						"name": "has_peak_human_condition",
+						"type": "String"
+					},
+					{
+						"name": "has_shapeshifting",
+						"type": "String"
+					},
+					{
+						"name": "has_heat_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_jump",
+						"type": "String"
+					},
+					{
+						"name": "has_self-sustenance",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_absorption",
+						"type": "String"
+					},
+					{
+						"name": "has_cold_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_magic",
+						"type": "String"
+					},
+					{
+						"name": "has_telekinesis",
+						"type": "String"
+					},
+					{
+						"name": "has_toxin_and_disease_resistance",
+						"type": "String"
+					},
+					{
+						"name": "has_telepathy",
+						"type": "String"
+					},
+					{
+						"name": "has_regeneration",
+						"type": "String"
+					},
+					{
+						"name": "has_immortality",
+						"type": "String"
+					},
+					{
+						"name": "has_teleportation",
+						"type": "String"
+					},
+					{
+						"name": "has_force_fields",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_manipulation",
+						"type": "String"
+					},
+					{
+						"name": "has_endurance",
+						"type": "String"
+					},
+					{
+						"name": "has_longevity",
+						"type": "String"
+					},
+					{
+						"name": "has_weapon-based_powers",
+						"type": "String"
+					},
+					{
+						"name": "has_energy_blasts",
+						"type": "String"
+					},
+					{
+						"name": "has_enhanced_senses",
+						"type": "String"
+					},
+					{
+						"name": "has_invulnerability",
+						"type": "String"
+					},
+					{
+						"name": "has_stealth",
+						"type": "String"
+					},
+					{
+						"name": "has_marksmanship",
+						"type": "String"
+					},
+					{
+						"name": "has_flight",
+						"type": "String"
+					},
+					{
+						"name": "has_accelerated_healing",
+						"type": "String"
+					},
+					{
+						"name": "has_weapons_master",
+						"type": "String"
+					},
+					{
+						"name": "has_intelligence",
+						"type": "String"
+					},
+					{
+						"name": "has_reflexes",
+						"type": "String"
+					},
+					{
+						"name": "has_super_speed",
+						"type": "String"
+					},
+					{
+						"name": "has_durability",
+						"type": "String"
+					},
+					{
+						"name": "has_stamina",
+						"type": "String"
+					},
+					{
+						"name": "has_agility",
+						"type": "String"
+					},
+					{
+						"name": "has_super_strength",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
 			]
 		},
 		{
@@ -199,6 +1624,135 @@
 				"type": "AzureSqlDatabase",
 				"typeProperties": {
 					"connectionString": "[parameters('AzureSQLSampleDB_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/GitHub_DataSource')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "Connect to GitHub to extract sample files and data",
+				"annotations": [
+					"Github"
+				],
+				"type": "GitHub",
+				"typeProperties": {
+					"username": "[parameters('GitHub_DataSource_properties_typeProperties_username')]",
+					"credential": {
+						"type": "SecureString",
+						"value": "[parameters('GitHub_DataSource_credential')]"
+					},
+					"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIlNZTkFQU0VAMzY0MDEyNTYtMEYxOC00MzM1LUE0NEQtODVERDA4QkFFMjBCXzYwZjE3YzA5LTg3MjYtNGM3YS1iNTEzLTQ4MGYzYmNhZDg3ZSINCn0="
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/GitHub_REST')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('GitHub_REST_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('GitHub_REST_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('GitHub_REST_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/GitHub_web')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('GitHub_web_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('GitHub_web_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('GitHub_web_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/HTTPLink')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('HTTPLink_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('HTTPLink_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('HTTPLink_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/azuredv-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('azuredv-WorkspaceDefaultSqlServer_connectionString')]"
 				},
 				"connectVia": {
 					"referenceName": "AutoResolveIntegrationRuntime",
@@ -375,12 +1929,278 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/MoveMarvelSearch_JSON')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "MarvelSearchJSON",
+								"type": "DatasetReference"
+							},
+							"name": "marvelSearchJsonFiles"
+						}
+					],
+					"sinks": [
+						{
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          aliases as string[],",
+						"          authors as string[],",
+						"          description as string,",
+						"          images as (background as string, thumbnail as string),",
+						"          mainColor as string,",
+						"          name as string,",
+						"          partners as string[],",
+						"          powers as string[],",
+						"          ranking as (comicCount as integer, eventCount as integer, pageviewCount as integer, serieCount as integer, storyCount as integer),",
+						"          secretIdentities as string[],",
+						"          species as string[],",
+						"          superName as string,",
+						"          teams as string[],",
+						"          urls as (marvel as string, wikipedia as string)",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 100,",
+						"     ignoreNoFilesFound: false,",
+						"     rowUrlColumn: 'FileName',",
+						"     documentForm: 'arrayOfDocuments') ~> marvelSearchJsonFiles",
+						"marvelSearchJsonFiles sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     store: 'cache',",
+						"     format: 'inline',",
+						"     output: true,",
+						"     saveOrder: 1,",
+						"     preCommands: [],",
+						"     postCommands: []) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/MarvelSearchJSON')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ADVMI')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {
+					"resourceId": "/subscriptions/abecf403-c605-409c-acba-6459bd193009/resourceGroups/PrimaryRsc/providers/Microsoft.ManagedIdentity/userAssignedIdentities/AzureDv_ManagedId"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
 			"type": "Microsoft.Synapse/workspaces/credentials",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"type": "ManagedIdentity",
 				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/001_CREATE_azuredv_eds')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Framework"
+				},
+				"content": {
+					"query": "IF EXISTS (select * from sys.external_data_sources where name = 'ADV_DATA_EDS')\n\tDROP EXTERNAL DATA SOURCE [ADV_DATA_EDS]\nGO\n\nCREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH\n(\n\tLOCATION = 'abfss://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data/',\n\tTYPE = HADOOP\n)\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/002_CREATE_azuredv_eff')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Framework"
+				},
+				"content": {
+					"query": "CREATE EXTERNAL FILE FORMAT [ADV_JSON_DATA_EFF] \nWITH (\n\tFORMAT_TYPE = DELIMITEDTEXT, \n\tFORMAT_OPTIONS (\n\t\tFIELD_TERMINATOR = '0x0b', \n\t\tUSE_TYPE_DEFAULT = False\n\t)\n)\nGO\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/003_CREATE_Schemas')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Framework"
+				},
+				"content": {
+					"query": "CREATE SCHEMA source\nGO\nCREATE SCHEMA stage1\nGO\nCREATE SCHEMA stage2\nGO\nCREATE SCHEMA vault\nGO\nCREATE SCHEMA mart\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CREATE_ADV_DATA_EDS')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Framework"
+				},
+				"content": {
+					"query": "IF EXISTS (select * from sys.external_data_sources where name = 'ADV_DATA_EDS')\n\tDROP EXTERNAL DATA SOURCE [ADV_DATA_EDS]\nGO\n\nCREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH\n(\n\tLOCATION = 'abfss://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data/',\n\tTYPE = HADOOP\n)\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CREATE_EDS_SYNAPSEDVDEMO')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE EXTERNAL DATA SOURCE [EDS_SYNAPSEDVDEMO] \nWITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/'\n)\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "AzureDVEngine",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CREATE_EFF_CSV')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS ( FIELD_TERMINATOR = ',', STRING_DELIMITER = '\"', FIRST_ROW = 2   )\n)\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "AzureDVEngine",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_kaggle_superhero')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.objects O JOIN sys.schemas S ON O.schema_id = S.schema_id WHERE O.NAME = 'kaggle_superhero' AND O.TYPE = 'U' AND S.NAME = 'stgL1')\nCREATE TABLE stgL1.kaggle_superhero\n\t(\n\t [name] varchar(4000),\n\t [real_name] varchar(4000),\n\t [full_name] varchar(4000),\n\t [overall_score] varchar(4000),\n\t [history_text] varchar(max),\n\t [powers_text] varchar(max),\n\t [intelligence_score] bigint,\n\t [strength_score] bigint,\n\t [speed_score] bigint,\n\t [durability_score] bigint,\n\t [power_score] bigint,\n\t [combat_score] bigint,\n\t [superpowers] varchar(4000),\n\t [alter_egos] varchar(4000),\n\t [aliases] varchar(4000),\n\t [place_of_birth] varchar(4000),\n\t [first_appearance] varchar(4000),\n\t [creator] varchar(4000),\n\t [alignment] varchar(4000),\n\t [occupation] varchar(4000),\n\t [base] varchar(4000),\n\t [teams] varchar(4000),\n\t [relatives] varchar(4000),\n\t [gender] varchar(4000),\n\t [type_race] varchar(4000),\n\t [height] varchar(4000),\n\t [weight] varchar(4000),\n\t [eye_color] varchar(4000),\n\t [hair_color] varchar(4000),\n\t [skin_color] varchar(4000),\n\t [img] varchar(4000),\n\t [has_electrokinesis] float,\n\t [has_energy_constructs] float,\n\t [has_mind_control_resistance] float,\n\t [has_matter_manipulation] float,\n\t [has_telepathy_resistance] float,\n\t [has_mind_control] float,\n\t [has_enhanced_hearing] float,\n\t [has_dimensional_travel] float,\n\t [has_element_control] float,\n\t [has_size_changing] float,\n\t [has_fire_resistance] float,\n\t [has_fire_control] float,\n\t [has_dexterity] float,\n\t [has_reality_warping] float,\n\t [has_illusions] float,\n\t [has_energy_beams] float,\n\t [has_peak_human_condition] float,\n\t [has_shapeshifting] float,\n\t [has_heat_resistance] float,\n\t [has_jump] float,\n\t [has_self-sustenance] float,\n\t [has_energy_absorption] float,\n\t [has_cold_resistance] float,\n\t [has_magic] float,\n\t [has_telekinesis] float,\n\t [has_toxin_and_disease_resistance] float,\n\t [has_telepathy] float,\n\t [has_regeneration] float,\n\t [has_immortality] float,\n\t [has_teleportation] float,\n\t [has_force_fields] float,\n\t [has_energy_manipulation] float,\n\t [has_endurance] float,\n\t [has_longevity] float,\n\t [has_weapon-based_powers] float,\n\t [has_energy_blasts] float,\n\t [has_enhanced_senses] float,\n\t [has_invulnerability] float,\n\t [has_stealth] float,\n\t [has_marksmanship] float,\n\t [has_flight] float,\n\t [has_accelerated_healing] float,\n\t [has_weapons_master] float,\n\t [has_intelligence] float,\n\t [has_reflexes] float,\n\t [has_super_speed] float,\n\t [has_durability] float,\n\t [has_stamina] float,\n\t [has_agility] float,\n\t [has_super_strength] float\n\t)\nWITH\n\t(\n\tDISTRIBUTION = ROUND_ROBIN,\n\t--  CLUSTERED COLUMNSTORE INDEX\n\t HEAP\n\t)\nGO\n\n--Uncomment the 4 lines below to create a stored procedure for data pipeline orchestration​\n--CREATE PROC bulk_load_kaggle_superhero\n--AS\n--BEGIN\nCOPY INTO stgL1.kaggle_superhero\n(name 1, real_name 2, full_name 3, overall_score 4, history_text 5, powers_text 6, intelligence_score 7, strength_score 8, \nspeed_score 9, durability_score 10, power_score 11, combat_score 12, superpowers 13, alter_egos 14, aliases 15, place_of_birth 16, \nfirst_appearance 17, creator 18, alignment 19, occupation 20, base 21, teams 22, relatives 23, gender 24, type_race 25, height 26, \nweight 27, eye_color 28, hair_color 29, skin_color 30, img 31, has_electrokinesis 32, has_energy_constructs 33, has_mind_control_resistance 34, \nhas_matter_manipulation 35, has_telepathy_resistance 36, has_mind_control 37, has_enhanced_hearing 38, has_dimensional_travel 39, \nhas_element_control 40, has_size_changing 41, has_fire_resistance 42, has_fire_control 43, has_dexterity 44, has_reality_warping 45, \nhas_illusions 46, has_energy_beams 47, has_peak_human_condition 48, has_shapeshifting 49, has_heat_resistance 50, has_jump 51, \n[has_self-sustenance] 52, has_energy_absorption 53, has_cold_resistance 54, has_magic 55, has_telekinesis 56, has_toxin_and_disease_resistance 57, \nhas_telepathy 58, has_regeneration 59, has_immortality 60, has_teleportation 61, has_force_fields 62, has_energy_manipulation 63, has_endurance 64, \nhas_longevity 65, [has_weapon-based_powers] 66, has_energy_blasts 67, has_enhanced_senses 68, has_invulnerability 69, has_stealth 70, \nhas_marksmanship 71, has_flight 72, has_accelerated_healing 73, has_weapons_master 74, has_intelligence 75, has_reflexes 76, has_super_speed 77, \nhas_durability 78, has_stamina 79, has_agility 80, has_super_strength 81)\nFROM 'https://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data/kaggle_superhero/superheroes_nlp_dataset.csv'\nWITH\n(\n\tFILE_TYPE = 'CSV'\n\t,MAXERRORS = 0\n\t,FIRSTROW = 2\n\t,ERRORFILE = 'https://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/'\n\t,CREDENTIAL = ( IDENTITY = 'Managed Identity' )\n\t,ERRORFILE_CREDENTIAL = ( IDENTITY = 'Managed Identity' )\n)\n--END\nGO\n\nSELECT TOP 100 * FROM stgL1.kaggle_superhero\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ExtractSuperHeroes_JSON_base')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE OR ALTER VIEW marvel_hero AS \nSELECT \n    base_hero.filename() AS FileName,\n    marvel_hero.[name], marvel_hero.superName, marvel_hero.[description],\n    marvel_hero.aliases, marvel_hero.authors, marvel_hero.images,\n    marvel_hero.partners, marvel_hero.powers, marvel_hero.ranking, marvel_hero.secretIdentities,\n    marvel_hero.species, marvel_hero.teams, marvel_hero.urls\nFROM OPENROWSET (\n    BULK 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/Data/marvel_search/**'\n    ,FORMAT = 'CSV'\n    ,FIELDTERMINATOR = '0x0b'\n    ,ROWTERMINATOR = '0X0b'\n    ,FIELDQUOTE = '0x0b'\n) WITH (doc NVARCHAR(MAX)) AS base_hero\n    CROSS APPLY OPENJSON(doc)\n        WITH (\n            aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n            authors NVARCHAR(MAX) '$.authors' AS JSON,\n            description VARCHAR(256),\n            images NVARCHAR(MAX) '$.images' AS JSON,\n            name VARCHAR(256),\n            partners NVARCHAR(MAX) '$.partners' AS JSON,\n            powers NVARCHAR(MAX) '$.powers' AS JSON,\n            ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n            secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n            species NVARCHAR(MAX) '$.species' AS JSON,\n            superName VARCHAR(256),\n            teams NVARCHAR(MAX) '$.teams' AS JSON,\n            urls NVARCHAR(MAX) '$.urls' AS JSON\n        ) AS marvel_hero \n/*         CROSS APPLY OPENJSON( marvel_marvel_hero.aliases )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_aliases\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.authors )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_authors\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.partners )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_partners\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.powers )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_powers\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.secretIdentities )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_secretIdentities\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.species )\n            WITH (\n                value VARCHAR(100) '$'\t\t\n            ) AS marvel_hero_species\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.teams )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_teams */",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "AzureDVEngine",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ExtractSuperHeroes_JSON_relatedTables')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT \n    hero.filename() AS FileName,\n    marvel_hero.[name], marvel_hero.superName, marvel_hero.[description]\nFROM OPENROWSET (\n    BULK 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/Data/marvel_search/**'\n    ,FORMAT = 'CSV'\n    ,FIELDTERMINATOR = '0x0b'\n    ,ROWTERMINATOR = '0X0b'\n    ,FIELDQUOTE = '0x0b'\n) WITH (doc NVARCHAR(MAX)) AS hero\n    CROSS APPLY OPENJSON(doc)\n        WITH (\n            aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n            authors NVARCHAR(MAX) '$.authors' AS JSON,\n            description VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8,\n            images_thumbnail VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$.images.thumbnail',\n            name VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8,\n            partners NVARCHAR(MAX) '$.partners' AS JSON,\n            powers NVARCHAR(MAX) '$.powers' AS JSON,\n            ranking_comicCount BIGINT '$.ranking.comicCount',\n            ranking_eventCount BIGINT '$.ranking.eventCount',\n            ranking_pageviewCount BIGINT '$.ranking.pageviewCount',\n            ranking_serieCount BIGINT '$.ranking.serieCount',\n            ranking_storyCount BIGINT '$.ranking.storyCount',\n            secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n            species NVARCHAR(MAX) '$.species' AS JSON,\n            superName VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8,\n            teams NVARCHAR(MAX) '$.teams' AS JSON,\n            urls_wikipedia VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$.urls.wikipedia'\n        ) AS marvel_hero \n/*         CROSS APPLY OPENJSON( marvel_hero.aliases )\n            WITH (\n                value VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$'\t\t\n            ) AS marvel_hero_aliases\n        CROSS APPLY OPENJSON ( marvel_hero.authors )\n            WITH (\n                value VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$'\t\t\n            ) AS marvel_hero_authors\n        CROSS APPLY OPENJSON ( marvel_hero.partners )\n            WITH (\n                value VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$'\t\t\n            ) AS marvel_hero_partners\n        CROSS APPLY OPENJSON ( marvel_hero.powers )\n            WITH (\n                value VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$'\t\t\n            ) AS marvel_hero_powers\n        CROSS APPLY OPENJSON ( marvel_hero.secretIdentities )\n            WITH (\n                value VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$'\t\t\n            ) AS marvel_hero_secretIdentities\n        CROSS APPLY OPENJSON ( marvel_hero.species )\n            WITH (\n                value VARCHAR(100) '$'\t\t\n            ) AS marvel_hero_species\n        CROSS APPLY OPENJSON ( marvel_hero.teams )\n            WITH (\n                value VARCHAR(256) COLLATE Latin1_General_100_BIN2_UTF8 '$'\t\t\n            ) AS marvel_hero_teams */",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "AzureDVEngine",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
 			},
 			"dependsOn": []
 		},
@@ -403,6 +2223,58 @@
 				"type": "SqlQuery"
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 2')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "DROP EXTERNAL DATA SOURCE [ADV_DATA_EDS]\nGO\n\nCREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH \n(\tTYPE = BLOB_STORAGE,\n\tLOCATION = N'abfss://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data'\n);\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 3')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- This is auto-generated code\nSELECT TOP 100\n    jsonContent\n    , JSON_QUERY (jsonContent, '$.aliases') AS aliases\n/* --> place the keys that you see in JSON documents in the WITH clause:\n       , JSON_VALUE (jsonContent, '$.key1') AS header1\n       , JSON_VALUE (jsonContent, '$.key2') AS header2\n*/\nFROM\n    OPENROWSET(\n        BULK 'https://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data/marvel_search/Abner_Jenkins.json',\n        FORMAT = 'CSV',\n        FIELDQUOTE = '0x0b',\n        FIELDTERMINATOR ='0x0b',\n        ROWTERMINATOR = '0x0b'\n    )\n    WITH (\n        jsonContent varchar(MAX)\n    ) AS [result]\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "AzureDVEngine",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/azuredvsdp')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/default')]",
@@ -456,6 +2328,21 @@
 				"groupId": "sql",
 				"fqdns": [
 					"azuredvdemo.acd92239-3586-411a-a41d-b7a4fb3e116f.sql.azuresynapse.net"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sqlOnDemand--azuredv')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"privateLinkResourceId": "/subscriptions/abecf403-c605-409c-acba-6459bd193009/resourceGroups/PrimaryRsc/providers/Microsoft.Synapse/workspaces/azuredv",
+				"groupId": "sqlOnDemand",
+				"fqdns": [
+					"azuredv-ondemand.723a26ff-1543-4ca5-bdb5-fea7cdd7aca0.sql.azuresynapse.net"
 				]
 			},
 			"dependsOn": [

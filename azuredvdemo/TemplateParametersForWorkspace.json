@@ -11,11 +11,47 @@
 		"AzureSQLSampleDB_connectionString": {
 			"value": ""
 		},
+		"GitHub_DataSource_credential": {
+			"value": ""
+		},
+		"GitHub_REST_password": {
+			"value": ""
+		},
+		"GitHub_web_password": {
+			"value": ""
+		},
+		"HTTPLink_password": {
+			"value": ""
+		},
+		"azuredv-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
 		"azuredvdemo-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
 		"AzureDV_keyVault_properties_typeProperties_baseUrl": {
 			"value": "https://AzureDVKeyVault.vault.azure.net/"
+		},
+		"GitHub_DataSource_properties_typeProperties_username": {
+			"value": "nicruzer"
+		},
+		"GitHub_REST_properties_typeProperties_url": {
+			"value": "https://github.com/veronikaSQL/Superhero-DataVault.git"
+		},
+		"GitHub_REST_properties_typeProperties_userName": {
+			"value": "nicruzer"
+		},
+		"GitHub_web_properties_typeProperties_url": {
+			"value": "https://github.com/"
+		},
+		"GitHub_web_properties_typeProperties_userName": {
+			"value": "nicruzer"
+		},
+		"HTTPLink_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com/"
+		},
+		"HTTPLink_properties_typeProperties_userName": {
+			"value": "nicruzer"
 		},
 		"azuredvdemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://synapsedvdemo.dfs.core.windows.net"
