@@ -1,8 +1,8 @@
 {
-	"name": "SQL script 5",
+	"name": "CREATE_EDS_EFF_SYNAPSEDVDEMO",
 	"properties": {
 		"content": {
-			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '2N0&b#PNOAN'\nGO\nALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY\nGO\n\nCREATE DATABASE SCOPED CREDENTIAL MSI_CRED\nWITH IDENTITY = 'Managed Service Identity';\n\nIF EXISTS (select * from sys.external_data_sources where name = 'EDS_SynapseDvDemo')\n\tDROP EXTERNAL DATA SOURCE [EDS_SynapseDvDemo]\nGO\n\nCREATE EXTERNAL DATA SOURCE [EDS_SynapseDvDemo] WITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo',\n\tCREDENTIAL = [MSI_CRED]\n)\n\nCREATE EXTERNAL FILE FORMAT [EFF_Parquet] WITH \n(\n\tFORMAT_TYPE = PARQUET\n)\n\n\nCREATE EXTERNAL FILE FORMAT EFF_CSV_NoHeader\nWITH (FORMAT_TYPE = DELIMITEDTEXT,\n      FORMAT_OPTIONS(\n          FIELD_TERMINATOR = '|',\n          STRING_DELIMITER = '~~',\n          USE_TYPE_DEFAULT = False)\n)",
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '2N0&b#PNOAN'\nGO\nALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY\nGO\n\nCREATE DATABASE SCOPED CREDENTIAL MSI_CRED\nWITH IDENTITY = 'Managed Service Identity';\n\nIF EXISTS (select * from sys.external_data_sources where name = 'EDS_SynapseDvDemo')\n\tDROP EXTERNAL DATA SOURCE [EDS_SynapseDvDemo]\nGO\n\nCREATE EXTERNAL DATA SOURCE [EDS_SynapseDvDemo] WITH\n(\n\tLOCATION = 'abfss://synapsedvdemo@synapsedvdemo.dfs.core.windows.net',\n\tCREDENTIAL = [MSI_CRED]\n)\n\nCREATE EXTERNAL FILE FORMAT [EFF_Parquet] WITH \n(\n\tFORMAT_TYPE = PARQUET\n)\n\n\nCREATE EXTERNAL FILE FORMAT EFF_CSV_NoHeader\nWITH (FORMAT_TYPE = DELIMITEDTEXT,\n      FORMAT_OPTIONS(\n          FIELD_TERMINATOR = '|',\n          STRING_DELIMITER = '~~',\n          USE_TYPE_DEFAULT = False)\n)",
 			"metadata": {
 				"language": "sql"
 			},
