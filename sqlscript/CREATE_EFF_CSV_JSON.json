@@ -1,14 +1,14 @@
 {
-	"name": "CREATE_EFF_CSV",
+	"name": "CREATE_EFF_CSV_JSON",
 	"properties": {
 		"content": {
-			"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS ( FIELD_TERMINATOR = ',', STRING_DELIMITER = '\"', FIRST_ROW = 2   )\n)\n\n",
+			"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV_JSON] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS ( FIELD_TERMINATOR = '|', STRING_DELIMITER = '`'   )\n)\n\n",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "AzureDVEngine",
-				"poolName": "Built-in"
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
 			},
 			"resultLimit": 5000
 		},
