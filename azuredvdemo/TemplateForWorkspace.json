@@ -252,7 +252,7 @@
 											{
 												"type": "Query",
 												"text": {
-													"value": "BULK INSERT stage1.marvel_json_raw\nFROM 'data/marvel_search/@{item().name}'\nWITH ( DATA_SOURCE = 'ADV_EDS')",
+													"value": "INSERT INTO stage1.marvel_json_raw\nSELECT BulkColumn\nFROM OPENROWSET (\n    BULK 'Data/marvel_search/@{item().name}',\n    DATA_SOURCE = 'ADV_EDS',\n    SINGLE_CLOB\n) AS J\n",
 													"type": "Expression"
 												}
 											}
