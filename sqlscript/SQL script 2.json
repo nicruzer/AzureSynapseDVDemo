@@ -2,13 +2,13 @@
 	"name": "SQL script 2",
 	"properties": {
 		"content": {
-			"query": "DROP EXTERNAL DATA SOURCE [ADV_DATA_EDS]\nGO\n\nCREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH \n(\tLOCATION = N'abfss://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data'\n);\nGO",
+			"query": "SELECT *\nFROM dbo.marvel_hero_raw",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "azuredvsdp",
-				"poolName": "azuredvsdp"
+				"databaseName": "AzureDVEngine",
+				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
 		},
