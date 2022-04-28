@@ -2,7 +2,7 @@
 	"name": "SQL script 5",
 	"properties": {
 		"content": {
-			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '2N0&b#PNOAN'\nOPEN MASTER KEY DECRYPTION BY PASSWORD = '2N0&b#PNOAN'\nALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY\n\nCREATE DATABASE SCOPED CREDENTIAL MSI_CRED\nWITH IDENTITY = 'Managed Service Identity';\n\nCREATE EXTERNAL DATA SOURCE [EDS_SynapseDvDemo] WITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo',\n\tCREDENTIAL = [MSI_CRED]\n)\n\nCREATE EXTERNAL FILE FORMAT [EFF_Parquet] WITH \n(\n\tFORMAT_TYPE = PARQUET\n)",
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '2N0&b#PNOAN'\nALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY\n\nCREATE DATABASE SCOPED CREDENTIAL MSI_CRED\nWITH IDENTITY = 'Managed Service Identity';\n\nCREATE EXTERNAL DATA SOURCE [EDS_SynapseDvDemo] WITH\n(\n\tLOCATION = 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo',\n\tCREDENTIAL = [MSI_CRED]\n)\n\nCREATE EXTERNAL FILE FORMAT [EFF_Parquet] WITH \n(\n\tFORMAT_TYPE = PARQUET\n)",
 			"metadata": {
 				"language": "sql"
 			},
