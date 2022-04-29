@@ -7,8 +7,8 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "AzureDVEngine",
-				"poolName": "Built-in"
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
 			},
 			"resultLimit": 5000
 		},
