@@ -26,12 +26,83 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
-					"enableStaging": false
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"TableSchema",
+								"TableName"
+							]
+						},
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "TableSchema",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TableSchema",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "TableName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TableName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Abbreviation",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Abbreviation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "RecordSourceId",
+									"type": "String"
+								},
+								"sink": {
+									"name": "RecordSourceId",
+									"type": "Int32"
+								}
+							}
+						]
+					}
 				},
 				"inputs": [
 					{
 						"referenceName": "ADV_ADLSG2_CSV",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": "Ad hoc",
+							"FileName": "INSERT_dbo_Tables.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableSchema": "dbo",
+							"TableName": "Tables"
+						}
 					}
 				]
 			}
