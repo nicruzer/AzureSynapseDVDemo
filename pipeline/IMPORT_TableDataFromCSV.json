@@ -16,19 +16,23 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlServerSource",
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
 					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
-						"referenceName": "AzureDVEngineDB",
-						"type": "DatasetReference",
-						"parameters": {
-							"TableSchema": "dbo"
-						}
+						"referenceName": "ADV_ADLSG2_CSV",
+						"type": "DatasetReference"
 					}
 				]
 			}
