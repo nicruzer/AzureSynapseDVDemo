@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 4",
+	"properties": {
+		"content": {
+			"query": "IF OBJECT_ID('stage1.superhero_raw') IS NOT NULL\n    DROP TABLE stage1.superhero_raw\nGO\n\nCREATE TABLE stage1.superhero_raw (\n    [NAME] VARCHAR(1000),\n    [URL] VARCHAR(4000),\n    [INTELLIGENCE] VARCHAR(100),\n    [STRENGTH] VARCHAR(100),\n    [SPEED] VARCHAR(100),\n    [DURABILITY] VARCHAR(100),\n    [POWER] VARCHAR(100),\n    [COMBAT] VARCHAR(100),\n    [FULL_NAME] VARCHAR(100),\n    [ALTER_EGOS] NVARCHAR(MAX),\n    [ALIASES] NVARCHAR(MAX),\n    [PLACE_OF_BIRTH] VARCHAR(100),\n    [FIRST_APPEARANCE] VARCHAR(4000),\n    [CREATOR] VARCHAR(100),\n    [ALIGNMENT] VARCHAR(100),\n    [GENDER] VARCHAR(20),\n    [RACE] VARCHAR(20),\n    [HEIGHT] VARCHAR(20),\n    [WEIGHT] VARCHAR(20),\n    [EYE_COLOR] VARCHAR(10),\n    [HAIR_COLOR] VARCHAR(10),\n    [OCCUPATION] VARCHAR(100),\n    [BASE] VARCHAR(100),\n    [TEAM_AFFILIATION] VARCHAR(4000),\n    [RELATIVES] VARCHAR(4000),\n    [SKIN_COLOR] VARCHAR(10),\n    [TOTAL_POWER] VARCHAR(100)\n)\nWITH\n\t(\n\tDISTRIBUTION = ROUND_ROBIN,\n\t HEAP\n\t)\nGO\n\n\nCOPY INTO stage1.superhero_raw\n    ([NAME] 1, [URL] 2, [INTELLIGENCE] 3, [STRENGTH] 4, [SPEED] 5, [DURABILITY] 6, \n    [POWER] 7, [COMBAT] 8, [FULL_NAME] 9, [ALTER_EGOS] 10, [ALIASES] 11, [PLACE_OF_BIRTH] 12, \n    [FIRST_APPEARANCE] 13, [CREATOR] 14, [ALIGNMENT] 15, [GENDER] 16, [RACE] 17, [HEIGHT] 18, \n    [WEIGHT] 19, [EYE_COLOR] 20, [HAIR_COLOR] 21, [OCCUPATION] 22, [BASE] 23, [TEAM_AFFILIATION] 24, \n    [RELATIVES] 25, [SKIN_COLOR] 26, [TOTAL_POWER] 27)\nFROM 'https://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data/superherodb/SUPERHERO_RAW.csv'\nWITH\n    (\n        FILE_TYPE = 'CSV'\n        ,MAXERRORS = 1000\n        ,FIRSTROW = 2\n        ,ERRORFILE = 'https://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/'\n        ,CREDENTIAL = ( IDENTITY = 'Managed Identity' )\n        ,ERRORFILE_CREDENTIAL = ( IDENTITY = 'Managed Identity' )\n    )\n\nGO\n\nSELECT *\nFROM stage1.superhero_raw\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
