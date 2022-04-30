@@ -1,5 +1,5 @@
 {
-	"name": "SQL script 2",
+	"name": "DROP_CREATE_EXT_marvel_hero_raw",
 	"properties": {
 		"content": {
 			"query": "IF OBJECT_ID('stage1.marvel_hero_raw') IS NOT NULL\n    DROP EXTERNAL TABLE stage1.marvel_hero_raw\nGO\n\nCREATE EXTERNAL TABLE stage1.marvel_hero_raw\n(\n    doc NVARCHAR(MAX)\n)\nWITH (\n    DATA_SOURCE = [EDS_SynapseDvDemo],\n    FILE_FORMAT = [EFF_Parquet],\n    LOCATION = '/Stage1/marvel_hero/'\n)\n\n/* SELECT *\nFROM stage1.marvel_hero_raw */",
