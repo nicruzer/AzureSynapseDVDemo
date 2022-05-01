@@ -72,7 +72,6 @@
 				"     updateable:false,",
 				"     upsertable:true,",
 				"     keys:['TableSchema','TableName','RecordSourceId'],",
-				"     skipKeyWrites:true,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> ADVETables"
