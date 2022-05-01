@@ -1,0 +1,49 @@
+{
+	"name": "UpsertTablesTbl",
+	"properties": {
+		"activities": [
+			{
+				"name": "ExecuteTablesUpsert",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Insert_ADVEngine_DboTables",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"INSERTDboTablesCsv": {
+								"Directory": "Ad hoc",
+								"FileName": "INSERT_dbo_Tables.csv"
+							},
+							"CurrentRecordsInTarget": {
+								"TableSchema": "dbo",
+								"TableName": "Tables"
+							},
+							"ADVETables": {
+								"TableSchema": "dbo",
+								"TableName": "Tables"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}
