@@ -1,0 +1,82 @@
+{
+	"name": "Insert_ADVEngine_DboTables",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ADV_ADLSG2_CSV",
+						"type": "DatasetReference"
+					},
+					"name": "INSERTDboTablesCsv"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference"
+					},
+					"name": "CurrentRecordsInTarget"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference"
+					},
+					"name": "ADVETables"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LeftJoin"
+				},
+				{
+					"name": "UpsertConditions"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          TableSchema as string,",
+				"          TableName as string,",
+				"          Abbreviation as string,",
+				"          RecordSourceId as long",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     limit: 100,",
+				"     ignoreNoFilesFound: false) ~> INSERTDboTablesCsv",
+				"source(output(",
+				"          Id as integer,",
+				"          TableSchema as string,",
+				"          TableName as string,",
+				"          Abbreviation as string,",
+				"          CreateDate as timestamp,",
+				"          RecordSourceId as integer",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> CurrentRecordsInTarget",
+				"INSERTDboTablesCsv, CurrentRecordsInTarget join(INSERTDboTablesCsv@TableSchema == CurrentRecordsInTarget@TableSchema",
+				"     && INSERTDboTablesCsv@TableName == CurrentRecordsInTarget@TableName",
+				"     && INSERTDboTablesCsv@RecordSourceId == CurrentRecordsInTarget@RecordSourceId,",
+				"     joinType:'left',",
+				"     broadcast: 'auto')~> LeftJoin",
+				"LeftJoin alterRow(upsertIf(isNull(CurrentRecordsInTarget@TableSchema))) ~> UpsertConditions",
+				"UpsertConditions sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['TableSchema','TableName','RecordSourceId'],",
+				"     skipKeyWrites:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ADVETables"
+			]
+		}
+	}
+}
