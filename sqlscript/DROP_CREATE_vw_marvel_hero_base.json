@@ -1,0 +1,20 @@
+{
+	"name": "DROP_CREATE_vw_marvel_hero_base",
+	"properties": {
+		"folder": {
+			"name": "Views"
+		},
+		"content": {
+			"query": "IF OBJECT_ID('stage1.vw_marvel_hero_base') IS NOT NULL  \n    DROP VIEW stage1.vw_marvel_hero_base\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_base\nAS\n\nSELECT [name], supername, [description], species, ranking,\n    aliases, authors, images, partners, powers,\n    secretIdentities, teams, urls\nFROM stage1.marvel_hero_raw\n    CROSS APPLY OPENJSON(doc)\n    WITH (\n        aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n        authors NVARCHAR(MAX) '$.authors' AS JSON,\n        description VARCHAR(256),\n        images NVARCHAR(MAX) '$.images' AS JSON,\n        name VARCHAR(256),\n        partners NVARCHAR(MAX) '$.partners' AS JSON,\n        powers NVARCHAR(MAX) '$.powers' AS JSON,\n        ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n        secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n        species NVARCHAR(MAX) '$.species' AS JSON,\n        superName VARCHAR(256),\n        teams NVARCHAR(MAX) '$.teams' AS JSON,\n        urls NVARCHAR(MAX) '$.urls' AS JSON\n    ) AS marvel_hero \n\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_alias') IS NOT NULL\n    DROP VIEW stage1.vw_marvel_hero_alias\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_alias\nAS\n\nSELECT [name], supername, mha.[value] AS [alias]\nFROM stage1.vw_marvel_hero_base vmhb\n    CROSS APPLY OPENJSON(vmhb.aliases)\n    WITH (\n        [value] NVARCHAR(256) '$'\n    ) AS mha\n\nGO\n\nSELECT * FROM INFORMATION_SCHEMA.COLUMNS C \nWHERE C.TABLE_SCHEMA = 'stage1'\n    AND C.TABLE_NAME = 'vw_marvel_hero_base'\n    AND C.DATA_TYPE = 'NVARCHAR'\n    AND C.CHARACTER_MAXIMUM_LENGTH = -1\n    AND C.CHARACTER_SET_NAME = 'UNICODE'",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
