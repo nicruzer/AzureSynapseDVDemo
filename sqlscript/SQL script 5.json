@@ -2,7 +2,7 @@
 	"name": "SQL script 5",
 	"properties": {
 		"content": {
-			"query": "DECLARE @sql VARCHAR(MAX)\n\n;WITH vws AS (\n    SELECT 'SELECT * FROM stage1.' + C.TABLE_NAME AS sql\n    FROM INFORMATION_SCHEMA.VIEWS C\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),sql),'; ' + CHAR(13) + CHAR(10))\nFROM vws\n\nPRINT @sql\n\n",
+			"query": "DECLARE @sql VARCHAR(MAX)\n\n;WITH vws AS (\n    SELECT 'SELECT * FROM stage1.' + C.TABLE_NAME AS sql\n    FROM INFORMATION_SCHEMA.VIEWS C\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),sql),'; ' + CHAR(13) + CHAR(10))\nFROM vws\n\nPRINT @sql\n",
 			"metadata": {
 				"language": "sql"
 			},
