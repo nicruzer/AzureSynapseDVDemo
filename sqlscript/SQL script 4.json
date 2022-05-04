@@ -5,7 +5,7 @@
 			"name": "Metadata"
 		},
 		"content": {
-			"query": "SELECT T.TABLE_SCHEMA AS TableSchema, T.TABLE_NAME AS TableName, 'STG' AS Abbreviation,\n    NULL AS RecordSourceId\nFROM INFORMATION_SCHEMA.TABLES T",
+			"query": "SELECT T.TABLE_SCHEMA AS TableSchema, T.TABLE_NAME AS TableName, 'STG' AS Abbreviation,\n    NULL AS RecordSourceId\nFROM INFORMATION_SCHEMA.TABLES T\n\n\nSELECT C.TABLE_SCHEMA AS TableSchema, C.TABLE_NAME AS TableName,\n    C.COLUMN_NAME AS ColumnName, C.ORDINAL_POSITION AS OrdinalPosition,\n    C.DATA_TYPE AS DataType, C.IS_NULLABLE AS IsNullable,\n    ISNULL(C.DATETIME_PRECISION,C.NUMERIC_PRECISION) AS DateNumPrecision,\n    C.CHARACTER_MAXIMUM_LENGTH AS CharacterMaxLength,\n    NULL AS Abbreviation\nFROM INFORMATION_SCHEMA.COLUMNS C \nORDER BY C.TABLE_SCHEMA, C.TABLE_NAME, C.ORDINAL_POSITION",
 			"metadata": {
 				"language": "sql"
 			},
