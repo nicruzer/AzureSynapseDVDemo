@@ -1,0 +1,20 @@
+{
+	"name": "DROP_CREATE_sp_BuildRawHub",
+	"properties": {
+		"folder": {
+			"name": "Programmability"
+		},
+		"content": {
+			"query": "IF OBJECT_ID(')",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
