@@ -11,7 +11,8 @@
 				"defaultValue": "dbo"
 			},
 			"TableName": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Tables"
 			}
 		},
 		"folder": {
