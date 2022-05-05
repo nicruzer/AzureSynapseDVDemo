@@ -123,6 +123,166 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/CopyTableMetadatToEngine')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyToEngine",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlPoolSource",
+								"sqlReaderQuery": {
+									"value": "SELECT C.TABLE_SCHEMA AS TableSchema, C.TABLE_NAME AS TableName,\n    C.COLUMN_NAME AS ColumnName, C.ORDINAL_POSITION AS OrdinalPosition,\n    C.DATA_TYPE AS DataType, C.IS_NULLABLE AS IsNullable,\n    ISNULL(C.DATETIME_PRECISION,C.NUMERIC_PRECISION) AS DateNumPrecision,\n    C.CHARACTER_MAXIMUM_LENGTH AS CharacterMaxLength,\n    NULL AS Abbreviation\nFROM INFORMATION_SCHEMA.COLUMNS C \nORDER BY C.TABLE_SCHEMA, C.TABLE_NAME, C.ORDINAL_POSITION",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00"
+							},
+							"sink": {
+								"type": "SqlServerSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "TableSchema",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TableSchema",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "TableName",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TableName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ColumnName",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ColumnName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "OrdinalPosition",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "OrdinalPosition",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "DataType",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DataType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "IsNullable",
+											"type": "String"
+										},
+										"sink": {
+											"name": "IsNullable",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "DateNumPrecision",
+											"type": "Int16"
+										},
+										"sink": {
+											"name": "DateNumPrecision",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "CharacterMaxLength",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CharacterMaxLength",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "Abbreviation",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Abbreviation",
+											"type": "Int32"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AzureDV_SDP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureDVEngineDB",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableSchema": "stage1",
+									"TableName": "Columns"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/AzureDV_SDP')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ImportAbbreviationList')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -277,67 +437,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/UpsertTablesTbl')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "ExecuteTablesUpsert",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Insert_ADVEngine_DboTables",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"INSERTDboTablesCsv": {
-										"Directory": "Ad hoc",
-										"FileName": "INSERT_dbo_Tables.csv"
-									},
-									"CurrentRecordsInTarget": {
-										"TableSchema": "dbo",
-										"TableName": "Tables"
-									},
-									"ADVETables": {
-										"TableSchema": "dbo",
-										"TableName": "Tables"
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "None",
-							"cacheSinks": {
-								"firstRowOnly": true
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Insert_ADVEngine_DboTables')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/ADV_ADLSG2_CSV')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -395,7 +494,8 @@
 						"defaultValue": "dbo"
 					},
 					"TableName": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "Tables"
 					}
 				},
 				"folder": {
@@ -417,6 +517,24 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngineDB_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureDV_SDP')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "SqlPoolTable",
+				"schema": [],
+				"typeProperties": {},
+				"sqlPool": {
+					"referenceName": "azuredvsdp",
+					"type": "SqlPoolReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/sqlPools/azuredvsdp')]"
 			]
 		},
 		{
@@ -2374,6 +2492,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_vw_marvel_hero_base')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Views"
+				},
+				"content": {
+					"query": "IF OBJECT_ID('stage1.vw_marvel_hero_base') IS NOT NULL  \n    DROP VIEW stage1.vw_marvel_hero_base\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_base\nAS\n\nSELECT [name], supername, [description], species, ranking,\n    aliases, authors, images, partners, powers,\n    secretIdentities, teams, urls\nFROM stage1.marvel_hero_raw\n    CROSS APPLY OPENJSON(doc)\n    WITH (\n        aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n        authors NVARCHAR(MAX) '$.authors' AS JSON,\n        description VARCHAR(256),\n        images NVARCHAR(MAX) '$.images' AS JSON,\n        name VARCHAR(256),\n        partners NVARCHAR(MAX) '$.partners' AS JSON,\n        powers NVARCHAR(MAX) '$.powers' AS JSON,\n        ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n        secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n        species NVARCHAR(MAX) '$.species' AS JSON,\n        superName VARCHAR(256),\n        teams NVARCHAR(MAX) '$.teams' AS JSON,\n        urls NVARCHAR(MAX) '$.urls' AS JSON\n    ) AS marvel_hero \n\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_species') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_species\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_species \nAS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS species \nFROM \n  stage1.vw_marvel_hero_base vmhb \n  CROSS APPLY OPENJSON(vmhb.species) \n  WITH (  [value] VARCHAR(256) '$') AS jCol\n  \nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_ranking') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_ranking\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_ranking AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS ranking \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.ranking) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_aliases'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_aliases\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_aliases AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS aliases \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.aliases) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_authors'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_authors\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_authors AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS authors \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.authors) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_images') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_images\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_images AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS images \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.images) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_partners'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_partners\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_partners AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS partners \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.partners) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_powers') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_powers\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_powers AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS powers \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.powers) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_secretIdentities'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_secretIdentities\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_secretIdentities AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS secretIdentities \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.secretIdentities) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_teams') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_teams\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_teams AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS teams \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.teams) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_urls') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_urls\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_urls AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS urls \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.urls) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol \nGO\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ExtractSuperHeroes_JSON_base')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -2406,6 +2547,26 @@
 					"currentConnection": {
 						"databaseName": "AzureDVEngine",
 						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/GENERATE_VIEW_SQL_FORJSON')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "DECLARE @baseKeyCol VARCHAR(1000) = '[name], superName,'\nDECLARE @tableOrViewSchema VARCHAR(255) = 'stage1'\nDECLARE @tableOrViewName VARCHAR(255) = 'vw_marvel_hero_base'\nDECLARE @fqViewName VARCHAR(512) = CONCAT_WS('.',@tableOrViewSchema,@tableOrViewName)\nDECLARE @baseAlias VARCHAR(10) = 'vmhb'\nDECLARE @newLine VARCHAR(2) = CHAR(13) + CHAR(10)\nDECLARE @dropStatement VARCHAR(MAX) =\n    'IF OBJECT_ID(''{{NewViewName}}'') IS NOT NULL ' + @newLine +\n    '   DROP VIEW {{NewViewName}}' + @newLine +\n    ' ; ' + @newLine + @newLine\nDECLARE @createStatement VARCHAR(500) = 'CREATE VIEW {{NewViewName}} AS ' + @newLine\nDECLARE @sql VARCHAR(MAX)\n\n;WITH JsonFields AS (\n    SELECT C.COLUMN_NAME, LEFT(C.COLUMN_NAME, 2) AS jAlias,\n        CONCAT_WS('.',@tableOrViewSchema,REPLACE(@tableOrViewName,'_base','_' + C.COLUMN_NAME)) AS NewViewName\n    FROM INFORMATION_SCHEMA.COLUMNS C \n    WHERE C.TABLE_SCHEMA = @tableOrViewSchema\n        AND C.TABLE_NAME = @tableOrViewName\n        AND C.DATA_TYPE = 'NVARCHAR'\n        AND C.CHARACTER_MAXIMUM_LENGTH = -1\n        AND C.CHARACTER_SET_NAME = 'UNICODE'\n), statements AS (\n    SELECT CONCAT_WS(\n        ' '\n        ,REPLACE(@dropStatement,'{{NewViewName}}',jf.NewViewName)\n        ,REPLACE(@createStatement,'{{NewViewName}}',jf.NewViewName)\n        ,'SELECT'\n        ,@baseKeyCol\n        ,'jCol.[value] AS ' + jf.COLUMN_NAME + @newLine\n        ,'FROM'\n        ,@fqViewName\n        ,@baseAlias + @newLine\n        ,'CROSS APPLY OPENJSON(' + CONCAT_WS('.',@baseAlias,jf.COLUMN_NAME) + ')' + @newLine\n        ,'WITH ([value] VARCHAR(256) ''$'') AS jCol' + @newLine\n        ,'; ' + @newLine + @newLine\n    ) AS createView\n    FROM JsonFields jf\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),createView),@newLine)\nFROM statements\n\nPRINT (@sql)\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
 					},
 					"resultLimit": 5000
 				},
@@ -2462,7 +2623,27 @@
 					"name": "Metadata"
 				},
 				"content": {
-					"query": "SELECT T.TABLE_SCHEMA AS TableSchema, T.TABLE_NAME AS TableName, 'STG' AS Abbreviation,\n    NULL AS RecordSourceId\nFROM INFORMATION_SCHEMA.TABLES T",
+					"query": "SELECT T.TABLE_SCHEMA AS TableSchema, T.TABLE_NAME AS TableName, 'STG' AS Abbreviation,\n    NULL AS RecordSourceId\nFROM INFORMATION_SCHEMA.TABLES T\n\n\nSELECT C.TABLE_SCHEMA AS TableSchema, C.TABLE_NAME AS TableName,\n    C.COLUMN_NAME AS ColumnName, C.ORDINAL_POSITION AS OrdinalPosition,\n    C.DATA_TYPE AS DataType, C.IS_NULLABLE AS IsNullable,\n    ISNULL(C.DATETIME_PRECISION,C.NUMERIC_PRECISION) AS DateNumPrecision,\n    C.CHARACTER_MAXIMUM_LENGTH AS CharacterMaxLength,\n    NULL AS Abbreviation\nFROM INFORMATION_SCHEMA.COLUMNS C \nORDER BY C.TABLE_SCHEMA, C.TABLE_NAME, C.ORDINAL_POSITION",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 5')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "DECLARE @sql VARCHAR(MAX)\n\n;WITH vws AS (\n    SELECT 'SELECT * FROM stage1.' + C.TABLE_NAME AS sql\n    FROM INFORMATION_SCHEMA.VIEWS C\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),sql),'; ' + CHAR(13) + CHAR(10))\nFROM vws\n\nPRINT @sql\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -2575,6 +2756,29 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_HUB_BEING')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Tables"
+				},
+				"content": {
+					"query": "IF OBJECT_ID('[vault].[HUB_BEING]') IS NOT NULL\n\tDROP TABLE [vault].[HUB_BEING]\nGO\n\nSET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\n\nCREATE TABLE [vault].[HUB_BEING]\n( \n\t[HUB_BEING_BKEY] [varchar](4000)  NOT NULL,\n\t[URL] [varchar](4000)  NULL,\n\t[SOURCE_URL] [varchar](4000)  NULL,\n\t[RSRC] [varchar](4000)  NULL,\n\t[LDDTS] [datetime2](7)  NULL\n)\nWITH\n(\n\tDISTRIBUTION = HASH ( [HUB_BEING_BKEY] ),\n\tCLUSTERED COLUMNSTORE INDEX\n)\nGO\n\n;WITH ZeroGhostRecords AS (\n\tSELECT *\n\tFROM (\n\t\tSELECT '0|0','0','0','SYS_GhostRec','1/1/1900' UNION ALL\n\t\tSELECT '-1|-1','-1','-1','SYS_NullKey_Required','1/1/1900' UNION ALL\n\t\tSELECT '-2|-2','-2','-2','SYS_NullKey_Optional','1/1/1900'\n\t) tbl(HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS)\n)\n\nINSERT INTO vault.HUB_BEING (HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS)\nSELECT HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS\nFROM ZeroGhostRecords zgr \nWHERE NOT EXISTS (\n\tSELECT 1\n\tFROM vault.HUB_BEING vhb\n\tWHERE zgr.HUB_BEING_BKEY = vhb.HUB_BEING_BKEY\n)\n\nGO\n\nSELECT *\nFROM vault.HUB_BEING",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
 		}
 	]
 }
