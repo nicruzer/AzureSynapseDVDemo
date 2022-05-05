@@ -25,6 +25,10 @@
 					},
 					"sink": {
 						"type": "SqlServerSink",
+						"preCopyScript": {
+							"value": "IF OBJECT_ID('stage1.Columns') IS NOT NULL\n    TRUNCATE TABLE stage1.Columns\nGO",
+							"type": "Expression"
+						},
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"tableOption": "autoCreate"
