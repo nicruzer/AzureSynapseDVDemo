@@ -151,6 +151,10 @@
 							},
 							"sink": {
 								"type": "SqlServerSink",
+								"preCopyScript": {
+									"value": "IF OBJECT_ID('stage1.Columns') IS NOT NULL\n    TRUNCATE TABLE stage1.Columns\nGO",
+									"type": "Expression"
+								},
 								"writeBehavior": "insert",
 								"sqlWriterUseTableLock": false,
 								"tableOption": "autoCreate"
@@ -2452,6 +2456,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_HUB_BEING')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Tables"
+				},
+				"content": {
+					"query": "IF OBJECT_ID('[vault].[HUB_BEING]') IS NOT NULL\n\tDROP TABLE [vault].[HUB_BEING]\nGO\n\nSET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\n\nCREATE TABLE [vault].[HUB_BEING]\n( \n\t[HUB_BEING_BKEY] [varchar](4000)  NOT NULL,\n\t[URL] [varchar](4000)  NULL,\n\t[SOURCE_URL] [varchar](4000)  NULL,\n\t[RSRC] [varchar](4000)  NULL,\n\t[LDDTS] [datetime2](7)  NULL\n)\nWITH\n(\n\tDISTRIBUTION = HASH ( [HUB_BEING_BKEY] ),\n\tCLUSTERED COLUMNSTORE INDEX\n)\nGO\n\n;WITH ZeroGhostRecords AS (\n\tSELECT *\n\tFROM (\n\t\tSELECT '0|0','0','0','SYS_GhostRec','1/1/1900' UNION ALL\n\t\tSELECT '-1|-1','-1','-1','SYS_NullKey_Required','1/1/1900' UNION ALL\n\t\tSELECT '-2|-2','-2','-2','SYS_NullKey_Optional','1/1/1900'\n\t) tbl(HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS)\n)\n\nINSERT INTO vault.HUB_BEING (HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS)\nSELECT HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS\nFROM ZeroGhostRecords zgr \nWHERE NOT EXISTS (\n\tSELECT 1\n\tFROM vault.HUB_BEING vhb\n\tWHERE zgr.HUB_BEING_BKEY = vhb.HUB_BEING_BKEY\n)\n\nGO\n\nSELECT *\nFROM vault.HUB_BEING",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_kaggle_superhero')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -2464,6 +2491,29 @@
 					"currentConnection": {
 						"databaseName": "azuredvsdp",
 						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_sp_BuildRawHub')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Programmability"
+				},
+				"content": {
+					"query": "IF OBJECT_ID(')",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
 				},
@@ -2575,6 +2625,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/GetMetadata')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Metadata"
+				},
+				"content": {
+					"query": "SELECT T.TABLE_SCHEMA AS TableSchema, T.TABLE_NAME AS TableName, 'STG' AS Abbreviation,\n    NULL AS RecordSourceId\nFROM INFORMATION_SCHEMA.TABLES T\n\n\nSELECT C.TABLE_SCHEMA AS TableSchema, C.TABLE_NAME AS TableName,\n    C.COLUMN_NAME AS ColumnName, C.ORDINAL_POSITION AS OrdinalPosition,\n    C.DATA_TYPE AS DataType, C.IS_NULLABLE AS IsNullable,\n    ISNULL(C.DATETIME_PRECISION,C.NUMERIC_PRECISION) AS DateNumPrecision,\n    C.CHARACTER_MAXIMUM_LENGTH AS CharacterMaxLength,\n    NULL AS Abbreviation\nFROM INFORMATION_SCHEMA.COLUMNS C \nORDER BY C.TABLE_SCHEMA, C.TABLE_NAME, C.ORDINAL_POSITION",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Metadata Layout')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -2607,29 +2680,6 @@
 					"currentConnection": {
 						"databaseName": "AzureDVEngine",
 						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 4')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Metadata"
-				},
-				"content": {
-					"query": "SELECT T.TABLE_SCHEMA AS TableSchema, T.TABLE_NAME AS TableName, 'STG' AS Abbreviation,\n    NULL AS RecordSourceId\nFROM INFORMATION_SCHEMA.TABLES T\n\n\nSELECT C.TABLE_SCHEMA AS TableSchema, C.TABLE_NAME AS TableName,\n    C.COLUMN_NAME AS ColumnName, C.ORDINAL_POSITION AS OrdinalPosition,\n    C.DATA_TYPE AS DataType, C.IS_NULLABLE AS IsNullable,\n    ISNULL(C.DATETIME_PRECISION,C.NUMERIC_PRECISION) AS DateNumPrecision,\n    C.CHARACTER_MAXIMUM_LENGTH AS CharacterMaxLength,\n    NULL AS Abbreviation\nFROM INFORMATION_SCHEMA.COLUMNS C \nORDER BY C.TABLE_SCHEMA, C.TABLE_NAME, C.ORDINAL_POSITION",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
 					},
 					"resultLimit": 5000
 				},
@@ -2756,29 +2806,6 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_HUB_BEING')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Tables"
-				},
-				"content": {
-					"query": "IF OBJECT_ID('[vault].[HUB_BEING]') IS NOT NULL\n\tDROP TABLE [vault].[HUB_BEING]\nGO\n\nSET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\n\nCREATE TABLE [vault].[HUB_BEING]\n( \n\t[HUB_BEING_BKEY] [varchar](4000)  NOT NULL,\n\t[URL] [varchar](4000)  NULL,\n\t[SOURCE_URL] [varchar](4000)  NULL,\n\t[RSRC] [varchar](4000)  NULL,\n\t[LDDTS] [datetime2](7)  NULL\n)\nWITH\n(\n\tDISTRIBUTION = HASH ( [HUB_BEING_BKEY] ),\n\tCLUSTERED COLUMNSTORE INDEX\n)\nGO\n\n;WITH ZeroGhostRecords AS (\n\tSELECT *\n\tFROM (\n\t\tSELECT '0|0','0','0','SYS_GhostRec','1/1/1900' UNION ALL\n\t\tSELECT '-1|-1','-1','-1','SYS_NullKey_Required','1/1/1900' UNION ALL\n\t\tSELECT '-2|-2','-2','-2','SYS_NullKey_Optional','1/1/1900'\n\t) tbl(HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS)\n)\n\nINSERT INTO vault.HUB_BEING (HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS)\nSELECT HUB_BEING_BKEY, URL, SOURCE_URL, RSRC, LDDTS\nFROM ZeroGhostRecords zgr \nWHERE NOT EXISTS (\n\tSELECT 1\n\tFROM vault.HUB_BEING vhb\n\tWHERE zgr.HUB_BEING_BKEY = vhb.HUB_BEING_BKEY\n)\n\nGO\n\nSELECT *\nFROM vault.HUB_BEING",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
 		}
 	]
 }
