@@ -2,7 +2,7 @@
 	"name": "JSON_ParsingExperiments",
 	"properties": {
 		"content": {
-			"query": ";WITH jsonSchema AS (\n    SELECT DISTINCT jsonDoc.[key], jsonDoc.Type\n    FROM stage1.marvel_hero_raw mhr\n        CROSS APPLY OPENJSON(doc) jsonDoc\n    WHERE jsonDoc.Type <> 0\n), columns AS (\n    SELECT *,\n        CASE js.[Type]\n            WHEN 1 THEN QUOTENAME(js.[key]) + ' VARCHAR(4000)'\n            WHEN 2 THEN QUOTENAME(js.[key]) + ' FLOAT'\n            WHEN 3 THEN QUOTENAME(js.[key]) + ' VARCHAR(5)'\n            ELSE QUOTENAME(js.[key]) + ' NVARCHAR(MAX) ''$.' + js.[key] + ''' AS JSON'\n        END AS colSQL\n    FROM jsonSchema js \n)\n\nSELECT STRING_AGG(colSQL,',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY [Type], [key]) AS colSQL\nFROM columns\n",
+			"query": ";WITH jsonSchema AS (\n    SELECT DISTINCT jsonDoc.[key], jsonDoc.Type\n    FROM stage1.marvel_hero_raw mhr\n        CROSS APPLY OPENJSON(doc) jsonDoc\n    WHERE jsonDoc.Type <> 0\n), columns AS (\n    SELECT *, QUOTENAME(js.[key]) + \n        CASE js.[Type]\n            WHEN 1 THEN ' VARCHAR(4000)'\n            WHEN 2 THEN ' FLOAT'\n            WHEN 3 THEN ' VARCHAR(5)'\n            ELSE ' NVARCHAR(MAX) ''$.' + js.[key] + ''' AS JSON'\n        END AS colSQL\n    FROM jsonSchema js \n)\n\nSELECT STRING_AGG(colSQL,',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY [Type], [key]) AS colSQL\nFROM columns\n",
 			"metadata": {
 				"language": "sql"
 			},
