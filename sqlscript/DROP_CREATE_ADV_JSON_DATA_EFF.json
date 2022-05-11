@@ -1,6 +1,9 @@
 {
 	"name": "DROP_CREATE_ADV_JSON_DATA_EFF",
 	"properties": {
+		"folder": {
+			"name": "Framework"
+		},
 		"content": {
 			"query": "DROP EXTERNAL FILE FORMAT [ADV_JSON_DATA_EFF]\nGO\n\nCREATE EXTERNAL FILE FORMAT [ADV_JSON_DATA_EFF] \nWITH (\n\tFORMAT_TYPE = DELIMITEDTEXT, \n\tFORMAT_OPTIONS (\n\t\tFIELD_TERMINATOR = N'0x0b', \n\t\tUSE_TYPE_DEFAULT = False\n\t)\n)\nGO\n\n",
 			"metadata": {
