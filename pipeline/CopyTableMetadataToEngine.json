@@ -1,5 +1,5 @@
 {
-	"name": "CopyTableMetadatToEngine",
+	"name": "CopyTableMetadataToEngine",
 	"properties": {
 		"activities": [
 			{
