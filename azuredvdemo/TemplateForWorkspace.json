@@ -2984,40 +2984,7 @@
 					},
 					"firstRowAsHeader": true
 				},
-				"schema": [
-					{
-						"name": "SourceColumnId",
-						"type": "String"
-					},
-					{
-						"name": "SourceSchema",
-						"type": "String"
-					},
-					{
-						"name": "SourceTable",
-						"type": "String"
-					},
-					{
-						"name": "SourceColumn",
-						"type": "String"
-					},
-					{
-						"name": "OrdinalPosition",
-						"type": "String"
-					},
-					{
-						"name": "TargetTableName",
-						"type": "String"
-					},
-					{
-						"name": "TargetTableColumn",
-						"type": "String"
-					},
-					{
-						"name": "IsHashKey",
-						"type": "String"
-					}
-				]
+				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
