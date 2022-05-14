@@ -2915,7 +2915,7 @@
 							"sink": {
 								"type": "SqlServerSink",
 								"preCopyScript": {
-									"value": "IF OBJECT_ID('stage1.TableColumnMap') IS NOT NULL \n    TRUNCATE TABLE stage1.TableColumnMap;",
+									"value": "IF OBJECT_ID('stage1.TableColumnMap') IS NOT NULL \n    DROP TABLE stage1.TableColumnMap;",
 									"type": "Expression"
 								},
 								"maxConcurrentConnections": 1,
@@ -2926,92 +2926,6 @@
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "SourceColumnId",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "SourceColumnId",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "SourceSchema",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "SourceSchema",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "SourceTable",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "SourceTable",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "SourceColumn",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "SourceColumn",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "OrdinalPosition",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "OrdinalPosition",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "TargetTableName",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "TargetTableName",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "TargetTableColumn",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "TargetTableColumn",
-											"type": "String",
-											"physicalType": "String"
-										}
-									}
-								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -3097,6 +3011,10 @@
 					},
 					{
 						"name": "TargetTableColumn",
+						"type": "String"
+					},
+					{
+						"name": "IsHashKey",
 						"type": "String"
 					}
 				]
