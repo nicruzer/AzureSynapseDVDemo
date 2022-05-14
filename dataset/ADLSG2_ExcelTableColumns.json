@@ -45,6 +45,10 @@
 			{
 				"name": "TargetTableColumn",
 				"type": "String"
+			},
+			{
+				"name": "IsHashKey",
+				"type": "String"
 			}
 		]
 	}
