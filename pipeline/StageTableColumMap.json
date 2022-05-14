@@ -1,0 +1,153 @@
+{
+	"name": "StageTableColumMap",
+	"properties": {
+		"activities": [
+			{
+				"name": "StageTableColumnMapFromExcelSource",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": {
+							"value": "IF OBJECT_ID('stage1.TableColumnMap') IS NOT NULL \n    TRUNCATE TABLE stage1.TableColumnMap\nGO",
+							"type": "Expression"
+						},
+						"maxConcurrentConnections": 1,
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "SourceColumnId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "SourceColumnId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SourceSchema",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "SourceSchema",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SourceTable",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "SourceTable",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SourceColumn",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "SourceColumn",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "OrdinalPosition",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "OrdinalPosition",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "TargetTableName",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "TargetTableName",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "TargetTableColumn",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "TargetTableColumn",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLSG2_ExcelTableColumns",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableSchema": "stage1",
+							"TableName": "TableColumnMap"
+						}
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
