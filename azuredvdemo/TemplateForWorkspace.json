@@ -341,6 +341,112 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/StageTableColumMap')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "StageTableColumnMapFromExcelSource",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "SqlServerSink",
+								"preCopyScript": {
+									"value": "IF OBJECT_ID('stage1.TableColumnMap') IS NOT NULL \n    DROP TABLE stage1.TableColumnMap;",
+									"type": "Expression"
+								},
+								"maxConcurrentConnections": 1,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLSG2_ExcelTableColumns",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureDVEngineDB",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableSchema": "stage1",
+									"TableName": "TableColumnMap"
+								}
+							}
+						]
+					},
+					{
+						"name": "ImportTableColumnMapToEngine",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "StageTableColumnMapFromExcelSource",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[dbo].[sp_InsertTableColumnMap]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureDVEngineDB_LS",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/ADLSG2_ExcelTableColumns')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngineDB_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/TEST_JSON_Import')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -438,6 +544,33 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/MarvelSearchJSON')]",
 				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngineDB_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ADLSG2_ExcelTableColumns')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Map",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "TableColumns.xlsx",
+						"folderPath": "staging/OneDrive",
+						"fileSystem": "synapsedvdemo"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
 			]
 		},
 		{
@@ -2883,111 +3016,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/StageTableColumMap')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "StageTableColumnMapFromExcelSource",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "ExcelSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								}
-							},
-							"sink": {
-								"type": "SqlServerSink",
-								"preCopyScript": {
-									"value": "IF OBJECT_ID('stage1.TableColumnMap') IS NOT NULL \n    DROP TABLE stage1.TableColumnMap;",
-									"type": "Expression"
-								},
-								"maxConcurrentConnections": 1,
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"tableOption": "autoCreate"
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ADLSG2_ExcelTableColumns",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "AzureDVEngineDB",
-								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "stage1",
-									"TableName": "TableColumnMap"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/ADLSG2_ExcelTableColumns')]",
-				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/ADLSG2_ExcelTableColumns')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Map",
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "TableColumns.xlsx",
-						"folderPath": "staging/OneDrive",
-						"fileSystem": "synapsedvdemo"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
 			]
 		}
 	]
