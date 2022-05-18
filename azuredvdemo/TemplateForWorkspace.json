@@ -287,6 +287,109 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/GenerateNewVaultTables')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetVaultTableSQL",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "SELECT TableId, VaultTableSQL\nFROM dbo.fn_GetVaultTableSQL()",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AzureDVEngineDB",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableSchema": "dbo",
+									"TableName": "Tables"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEachVaultTable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "GetVaultTableSQL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('GetVaultTableSQL').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "ExecuteCreateTable",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "azuredv-WorkspaceDefaultSqlServer",
+										"type": "LinkedServiceReference",
+										"parameters": {
+											"DBName": "azuredvsdp"
+										}
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "@item().VaultTableSQL",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
+				"[concat(variables('workspaceId'), '/linkedServices/azuredv-WorkspaceDefaultSqlServer')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ImportAbbreviationList')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -2609,7 +2712,7 @@
 					"name": "Tables"
 				},
 				"content": {
-					"query": "IF OBJECT_ID('[vault].[HUB_BEING]') IS NOT NULL\n\tDROP TABLE [vault].[HUB_BEING]\nGO\n\nSET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\n\nCREATE TABLE [vault].[HUB_BEING]\n( \n\t[HUB_BEING_BKEY] [varchar](4000)  NOT NULL,\n\t[BEING_NAME] [varchar](4000)  NULL,\n\t[RSRC] [varchar](4000)  NULL,\n\t[LDDTS] [datetime2](7)  NULL\n)\nWITH\n(\n\tDISTRIBUTION = HASH ( [HUB_BEING_BKEY] ),\n\tCLUSTERED COLUMNSTORE INDEX\n)\nGO\n\n;WITH ZeroGhostRecords AS (\n\tSELECT *\n\tFROM (\n\t\tSELECT '0','0','SYS_GhostRec','1/1/1900' UNION ALL\n\t\tSELECT '-1','-1','SYS_NullKey_Required','1/1/1900' UNION ALL\n\t\tSELECT '-2','-2','SYS_NullKey_Optional','1/1/1900'\n\t) tbl(HUB_BEING_BKEY, BEING_NAME, RSRC, LDDTS)\n)\n\nINSERT INTO vault.HUB_BEING (HUB_BEING_BKEY, BEING_NAME, RSRC, LDDTS)\nSELECT HUB_BEING_BKEY, BEING_NAME, RSRC, LDDTS\nFROM ZeroGhostRecords zgr \nWHERE NOT EXISTS (\n\tSELECT 1\n\tFROM vault.HUB_BEING vhb\n\tWHERE zgr.HUB_BEING_BKEY = vhb.HUB_BEING_BKEY\n)\n\nGO\n\nSELECT *\nFROM vault.HUB_BEING",
+					"query": "IF OBJECT_ID('[vault].[HUB_BEING]') IS NOT NULL\n\tDROP TABLE [vault].[HUB_BEING]\nGO\n\nSET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\n\nCREATE TABLE [vault].[HUB_BEING]\n( \n\t[HUB_BEING_BKEY] [varchar](4000)  NOT NULL,\n\t[BEING_NAME] [varchar](4000)  NULL,\n\t[RSRC] [varchar](4000)  NULL,\n\t[LDDTS] [datetime2](7)  NULL\n)\nWITH\n(\n\tDISTRIBUTION = HASH ( [HUB_BEING_BKEY] ),\n\tCLUSTERED COLUMNSTORE INDEX\n)\nGO\n\n;WITH ZeroGhostRecords AS (\n\tSELECT *\n\tFROM (\n\t\tSELECT '0','0','SYS_GhostRec','1/1/1900' UNION ALL\n\t\tSELECT '-1','-1','SYS_NullKey_Required','1/1/1900' UNION ALL\n\t\tSELECT '-2','-2','SYS_NullKey_Optional','1/1/1900'\n\t) tbl(HUB_BEING_BKEY, BEING_NAME, RSRC, LDDTS)\n)\n\nINSERT INTO vault.HUB_BEING (HUB_BEING_BKEY, BEING_NAME, RSRC, LDDTS)\nSELECT HUB_BEING_BKEY, BEING_NAME, RSRC, LDDTS\nFROM ZeroGhostRecords zgr \nWHERE NOT EXISTS (\n\tSELECT 1\n\tFROM vault.HUB_BEING vhb\n\tWHERE zgr.HUB_BEING_BKEY = vhb.HUB_BEING_BKEY\n)\n\nGO\n\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -2905,6 +3008,29 @@
 			"properties": {
 				"content": {
 					"query": "DECLARE @sql VARCHAR(MAX)\n\n;WITH vws AS (\n    SELECT 'SELECT * FROM stage1.' + C.TABLE_NAME AS sql\n    FROM INFORMATION_SCHEMA.VIEWS C\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),sql),'; ' + CHAR(13) + CHAR(10))\nFROM vws\n\nPRINT @sql\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 6')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Programmability"
+				},
+				"content": {
+					"query": "IF OBJECT_ID('dbo.fn_GetDataTypes') IS NOT NULL\n    DROP FUNCTION dbo.fn_GetDataTypes\nGO\n\nCREATE FUNCTION dbo.fn_GetDataTypes()\nRETURNS TABLE\nAS\nRETURN (\n    EXEC sys.sp_datatype_info\n);\n\nGO",
 					"metadata": {
 						"language": "sql"
 					},
