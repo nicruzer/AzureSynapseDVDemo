@@ -1,0 +1,20 @@
+{
+	"name": "SQL script 6",
+	"properties": {
+		"folder": {
+			"name": "Programmability"
+		},
+		"content": {
+			"query": "IF OBJECT_ID('dbo.fn_GetDataTypes') IS NOT NULL\n    DROP FUNCTION dbo.fn_GetDataTypes\nGO\n\nCREATE FUNCTION dbo.fn_GetDataTypes()\nRETURNS TABLE\nAS\nRETURN (\n    EXEC sys.sp_datatype_info\n);\n\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
