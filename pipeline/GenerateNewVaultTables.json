@@ -86,6 +86,95 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "GetStage2ViewSQL",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "ForEachVaultTable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT Stage2ViewSQL\nFROM dbo.fn_GetStage2ViewSQL()",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableSchema": "dbo",
+							"TableName": "Tables"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEachViewSQLStatement",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetStage2ViewSQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetStage2ViewSQL').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "ExecuteViewCreationSQL",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureDVDemoSDP",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": {
+											"value": "@item().Stage2ViewSQL",
+											"type": "Expression"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
 			}
 		],
 		"annotations": []
