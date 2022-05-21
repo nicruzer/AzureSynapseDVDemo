@@ -128,6 +128,9 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"folder": {
+					"name": "Framework"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -291,6 +294,9 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"folder": {
+					"name": "Stage1"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -388,239 +394,14 @@
 								}
 							]
 						}
-					},
-					{
-						"name": "GetStage2ViewSQL",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "ForEachVaultTable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"sqlReaderQuery": {
-									"value": "SELECT DropSQL, Stage2ViewSQL\nFROM dbo.fn_GetStage2ViewSQL()",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "AzureDVEngineDB",
-								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "dbo",
-									"TableName": "Tables"
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEachViewSQLStatement",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "GetStage2ViewSQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('GetStage2ViewSQL').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "ExecuteViewDropStatement",
-									"type": "Script",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"linkedServiceName": {
-										"referenceName": "AzureDVDemoSDP",
-										"type": "LinkedServiceReference"
-									},
-									"typeProperties": {
-										"scripts": [
-											{
-												"type": "NonQuery",
-												"text": {
-													"value": "@item().DropSQL",
-													"type": "Expression"
-												}
-											}
-										]
-									}
-								},
-								{
-									"name": "ExecuteViewCreateSQL",
-									"type": "Script",
-									"dependsOn": [
-										{
-											"activity": "ExecuteViewDropStatement",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"linkedServiceName": {
-										"referenceName": "AzureDVDemoSDP",
-										"type": "LinkedServiceReference"
-									},
-									"typeProperties": {
-										"scripts": [
-											{
-												"type": "NonQuery",
-												"text": {
-													"value": "@item().Stage2ViewSQL",
-													"type": "Expression"
-												}
-											}
-										]
-									}
-								}
-							]
-						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
-				"[concat(variables('workspaceId'), '/linkedServices/azuredv-WorkspaceDefaultSqlServer')]",
-				"[concat(variables('workspaceId'), '/linkedServices/AzureDVDemoSDP')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/GenerateNewVaultTables_copy1')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "GetVaultTableSQL",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"sqlReaderQuery": {
-									"value": "SELECT TableId, VaultTableSQL\nFROM dbo.fn_GetVaultTableSQL()",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "AzureDVEngineDB",
-								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "dbo",
-									"TableName": "Tables"
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEachVaultTable",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "GetVaultTableSQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('GetVaultTableSQL').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "ExecuteCreateTable",
-									"type": "Script",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"linkedServiceName": {
-										"referenceName": "azuredv-WorkspaceDefaultSqlServer",
-										"type": "LinkedServiceReference",
-										"parameters": {
-											"DBName": "azuredvsdp"
-										}
-									},
-									"typeProperties": {
-										"scripts": [
-											{
-												"type": "NonQuery",
-												"text": {
-													"value": "@item().VaultTableSQL",
-													"type": "Expression"
-												}
-											}
-										]
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+				"folder": {
+					"name": "Stage2"
 				},
 				"annotations": []
 			},
@@ -676,6 +457,9 @@
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Framework"
 				},
 				"annotations": []
 			},
@@ -781,6 +565,9 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"folder": {
+					"name": "Stage1"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -879,6 +666,9 @@
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "DevTest"
 				},
 				"annotations": [
 					"JSON_Import"
@@ -3506,6 +3296,215 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/BuildStage2')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetStage2SQL",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "SELECT Stage2ViewDropSQL,\n    Stage2ViewSQL,\n    Stage2TableDropSQL,\n    Stage2TableCreateSQL\nFROM dbo.fn_GetStage2ViewSQL()",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AzureDVEngineDB",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableSchema": "dbo",
+									"TableName": "Tables"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEachSQLStatementSet",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "GetStage2SQL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('GetStage2SQL').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "ExecuteViewDropStatement",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureDVDemoSDP",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "@item().Stage2ViewDropSQL",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "ExecuteViewCreateSQL",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "ExecuteViewDropStatement",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureDVDemoSDP",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "@item().Stage2ViewCreateSQL",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "ExecuteTableDropStatement",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "ExecuteViewCreateSQL",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureDVDemoSDP",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "@item().Stage2TableDropSQL",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "ExecuteTableCreateStatement",
+									"description": "If the view has been created successfully, create and populate the associated staging table.",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "ExecuteTableDropStatement",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureDVDemoSDP",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "@item().Stage2TableCreateSQL",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Stage2"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDVDemoSDP')]"
 			]
 		}
 	]
