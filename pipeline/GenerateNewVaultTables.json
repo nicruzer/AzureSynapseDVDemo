@@ -166,7 +166,7 @@
 									{
 										"type": "NonQuery",
 										"text": {
-											"value": "@item().Stage2ViewSQL",
+											"value": "\"@{item().DropSQL}\nGO\n\n@{item().Stage2ViewSQL}\"",
 											"type": "Expression"
 										}
 									}
