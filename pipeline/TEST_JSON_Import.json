@@ -82,6 +82,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "DevTest"
+		},
 		"annotations": [
 			"JSON_Import"
 		]
