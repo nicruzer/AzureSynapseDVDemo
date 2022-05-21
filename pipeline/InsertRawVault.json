@@ -48,6 +48,10 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('GetVaultInsertSQL').output.value",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "ExecuteInsert",
