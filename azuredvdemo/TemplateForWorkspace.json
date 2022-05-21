@@ -367,7 +367,8 @@
 									"TableSchema": "dbo",
 									"TableName": "Tables"
 								}
-							}
+							},
+							"firstRowOnly": false
 						}
 					},
 					{
