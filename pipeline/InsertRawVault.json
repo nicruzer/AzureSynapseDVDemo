@@ -1,0 +1,44 @@
+{
+	"name": "InsertRawVault",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetVaultInsertSQL",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT rvs.TargetFQTableName,\n    STRING_AGG(\n        CONVERT(VARCHAR(MAX),rvs.InsertVaultTableSQL),\n        ' ' + CHAR(13) + CHAR(10)\n    ) WITHIN GROUP (ORDER BY rvs.TargetView) AS InsertVaultTableSQL\nFROM [dbo].[fn_RawVaultSQL]() rvs\nGROUP BY TargetFQTableName",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableSchema": "dbo",
+							"TableName": "Tables"
+						}
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"folder": {
+			"name": "Raw Vault"
+		},
+		"annotations": []
+	}
+}
