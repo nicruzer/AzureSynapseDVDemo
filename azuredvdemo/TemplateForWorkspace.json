@@ -388,6 +388,95 @@
 								}
 							]
 						}
+					},
+					{
+						"name": "GetStage2ViewSQL",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "ForEachVaultTable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "SELECT Stage2ViewSQL\nFROM dbo.fn_GetStage2ViewSQL()",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AzureDVEngineDB",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableSchema": "dbo",
+									"TableName": "Tables"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEachViewSQLStatement",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "GetStage2ViewSQL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('GetStage2ViewSQL').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "ExecuteViewCreationSQL",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "AzureDVDemoSDP",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "@item().Stage2ViewSQL",
+													"type": "Expression"
+												}
+											}
+										]
+									}
+								}
+							]
+						}
 					}
 				],
 				"policy": {
@@ -398,7 +487,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
-				"[concat(variables('workspaceId'), '/linkedServices/azuredv-WorkspaceDefaultSqlServer')]"
+				"[concat(variables('workspaceId'), '/linkedServices/azuredv-WorkspaceDefaultSqlServer')]",
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDVDemoSDP')]"
 			]
 		},
 		{
@@ -2824,6 +2914,26 @@
 				},
 				"content": {
 					"query": "CREATE EXTERNAL FILE FORMAT [EFF_CSV_JSON] WITH\n(\n\tFORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS ( FIELD_TERMINATOR = '|', STRING_DELIMITER = '`'   )\n)\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DROP All Vault Tables')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "DECLARE @SQL VARCHAR(MAX)\nSELECT @SQL = STRING_AGG('DROP TABLE ' + CONCAT_WS('.',T.TABLE_SCHEMA, T.TABLE_NAME) + '; ', ' ')\nFROM INFORMATION_SCHEMA.TABLES T\nWHERE T.TABLE_SCHEMA = 'vault'\n\nEXECUTE (@SQL)",
 					"metadata": {
 						"language": "sql"
 					},
