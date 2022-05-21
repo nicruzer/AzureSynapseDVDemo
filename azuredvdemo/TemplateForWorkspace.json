@@ -412,7 +412,7 @@
 							"source": {
 								"type": "SqlServerSource",
 								"sqlReaderQuery": {
-									"value": "SELECT Stage2ViewSQL\nFROM dbo.fn_GetStage2ViewSQL()",
+									"value": "SELECT DropSQL, Stage2ViewSQL\nFROM dbo.fn_GetStage2ViewSQL()",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
@@ -468,7 +468,7 @@
 											{
 												"type": "NonQuery",
 												"text": {
-													"value": "@item().Stage2ViewSQL",
+													"value": "\"@{item().DropSQL}\nGO\n\n@{item().Stage2ViewSQL}\"",
 													"type": "Expression"
 												}
 											}
