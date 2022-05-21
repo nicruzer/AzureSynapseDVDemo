@@ -354,7 +354,7 @@
 							"source": {
 								"type": "SqlServerSource",
 								"sqlReaderQuery": {
-									"value": "SELECT\n    [SourceView],\n    [TargetView],\n    [TargetFQTableName],\n    [TargetTableKey],\n    [TargetEntityAbbreviation],\n    [DropTargetViewSQL],\n    [CreateTargetViewSQL],\n    [InsertVaultTableSQL]\nFROM dbo.fn_fn_RawVaultSQL()",
+									"value": "SELECT\n    [SourceView],\n    [TargetView],\n    [TargetFQTableName],\n    [TargetTableKey],\n    [TargetEntityAbbreviation],\n    [DropTargetViewSQL],\n    [CreateTargetViewSQL],\n    [InsertVaultTableSQL]\nFROM dbo.fn_RawVaultSQL()",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
