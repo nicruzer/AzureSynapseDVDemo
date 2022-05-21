@@ -189,6 +189,129 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "GetVaultSQL",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "ForEachSQLStatementSet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT\n    [SourceView],\n    [TargetView],\n    [TargetFQTableName],\n    [TargetTableKey],\n    [TargetEntityAbbreviation],\n    [DropTargetViewSQL],\n    [CreateTargetViewSQL],\n    [InsertVaultTableSQL]\nFROM dbo.fn_fn_RawVaultSQL()",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureDVEngineDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableSchema": "dbo",
+							"TableName": "Tables"
+						}
+					}
+				}
+			},
+			{
+				"name": "ForEachVaulSQLStatement",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetVaultSQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetVaultSQL').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "DropExistingViewIfExists",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureDVDemoSDP",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": {
+											"value": "@item().DropTargetViewSQL",
+											"type": "Expression"
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "CreateVaultStagingView",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "DropExistingViewIfExists",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureDVDemoSDP",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": {
+											"value": "@item().CreateTargetViewSQL",
+											"type": "Expression"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
 			}
 		],
 		"folder": {
