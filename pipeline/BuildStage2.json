@@ -18,7 +18,7 @@
 					"source": {
 						"type": "SqlServerSource",
 						"sqlReaderQuery": {
-							"value": "SELECT Stage2ViewDropSQL,\n    Stage2ViewSQL,\n    Stage2TableDropSQL,\n    Stage2TableCreateSQL\nFROM dbo.fn_GetStage2ViewSQL()",
+							"value": "SELECT Stage2ViewDropSQL,\n    Stage2ViewSQL,\n    Stage2TableDropSQL,\n    Stage2TableCreateSQL\nFROM dbo.fn_GetStage2SQL()",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
