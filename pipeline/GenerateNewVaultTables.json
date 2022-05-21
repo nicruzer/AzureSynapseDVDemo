@@ -146,7 +146,7 @@
 					},
 					"activities": [
 						{
-							"name": "ExecuteViewCreationSQL",
+							"name": "ExecuteViewDropStatement",
 							"type": "Script",
 							"dependsOn": [],
 							"policy": {
@@ -166,7 +166,42 @@
 									{
 										"type": "NonQuery",
 										"text": {
-											"value": "\"@{item().DropSQL}\nGO\n\n@{item().Stage2ViewSQL}\"",
+											"value": "@item().DropSQL",
+											"type": "Expression"
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "ExecuteViewCreateSQL",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "ExecuteViewDropStatement",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureDVDemoSDP",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": {
+											"value": "@item().Stage2ViewSQL",
 											"type": "Expression"
 										}
 									}
