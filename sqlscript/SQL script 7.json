@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 7",
+	"properties": {
+		"content": {
+			"query": "select *\nfrom INFORMATION_SCHEMA.COLUMNS C \nWHERE C.TABLE_SCHEMA IN ('stage2','vault')\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
