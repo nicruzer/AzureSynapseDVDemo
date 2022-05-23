@@ -2,7 +2,7 @@
 	"name": "SQL script 7",
 	"properties": {
 		"content": {
-			"query": "select *\nfrom INFORMATION_SCHEMA.COLUMNS C \nWHERE C.TABLE_SCHEMA IN ('stage2','vault')\n\n",
+			"query": "DECLARE @SQL VARCHAR(MAX)\n\nselect @SQL = STRING_AGG('DROP ' + REPLACE(C.TABLE_TYPE, 'BASE', '') + ' ' + CONCAT_WS('.',C.TABLE_SCHEMA, C.TABLE_NAME) + '; ',' ')\nfrom INFORMATION_SCHEMA.tables C \nWHERE C.TABLE_SCHEMA IN ('stage2','vault')\nPRINT @SQL\nEXECUTE (@SQL)",
 			"metadata": {
 				"language": "sql"
 			},

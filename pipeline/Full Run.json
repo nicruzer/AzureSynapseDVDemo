@@ -3,9 +3,16 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Execute Pipeline1",
+				"name": "Execute_BuildStage2",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Execute_GenerateNewVaultTables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -16,11 +23,11 @@
 				}
 			},
 			{
-				"name": "Execute Pipeline2",
+				"name": "Execute_InsertRawVault",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Execute Pipeline1",
+						"activity": "Execute_BuildStage2",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -30,6 +37,19 @@
 				"typeProperties": {
 					"pipeline": {
 						"referenceName": "InsertRawVault",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Execute_GenerateNewVaultTables",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "GenerateNewVaultTables",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
