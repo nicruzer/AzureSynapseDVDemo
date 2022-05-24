@@ -32,6 +32,7 @@
 				"fileSystem": "synapsedvdemo"
 			},
 			"columnDelimiter": ",",
+			"encodingName": "US-ASCII",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
