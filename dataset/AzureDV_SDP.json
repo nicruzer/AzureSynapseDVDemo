@@ -5,7 +5,7 @@
 		"type": "SqlPoolTable",
 		"schema": [],
 		"sqlPool": {
-			"referenceName": "azuredvsdp",
+			"referenceName": "azuredvsdpdev",
 			"type": "SqlPoolReference"
 		}
 	}
