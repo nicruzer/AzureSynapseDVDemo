@@ -16,6 +16,7 @@
 				"relativeUrl": "jbesomi/texthero/master/dataset/superheroes_nlp_dataset.csv"
 			},
 			"columnDelimiter": ",",
+			"encodingName": "US-ASCII",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
