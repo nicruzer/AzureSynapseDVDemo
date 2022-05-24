@@ -3284,6 +3284,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/DROPAllStage2AndVault')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "DECLARE @SQL VARCHAR(MAX)\n\nselect @SQL = STRING_AGG('DROP ' + REPLACE(C.TABLE_TYPE, 'BASE', '') + ' ' + CONCAT_WS('.',C.TABLE_SCHEMA, C.TABLE_NAME) + '; ',' ')\nfrom INFORMATION_SCHEMA.tables C \nWHERE C.TABLE_SCHEMA IN ('stage2','vault')\nPRINT @SQL\nEXECUTE (@SQL)",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "azuredvsdp",
+						"poolName": "azuredvsdp"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/DROP_CREATE_ADV_JSON_DATA_EFF')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -3444,7 +3464,7 @@
 					"name": "Views"
 				},
 				"content": {
-					"query": "IF OBJECT_ID('stage1.vw_marvel_hero_base') IS NOT NULL  \n    DROP VIEW stage1.vw_marvel_hero_base\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_base\nAS\n\nSELECT [name], supername, [description], species, ranking,\n    aliases, authors, images, partners, powers,\n    secretIdentities, teams, urls\nFROM stage1.STG_marvel_hero_raw\n    CROSS APPLY OPENJSON(doc)\n    WITH (\n        aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n        authors NVARCHAR(MAX) '$.authors' AS JSON,\n        description VARCHAR(256),\n        images NVARCHAR(MAX) '$.images' AS JSON,\n        name VARCHAR(256),\n        partners NVARCHAR(MAX) '$.partners' AS JSON,\n        powers NVARCHAR(MAX) '$.powers' AS JSON,\n        ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n        secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n        species NVARCHAR(MAX) '$.species' AS JSON,\n        superName VARCHAR(256),\n        teams NVARCHAR(MAX) '$.teams' AS JSON,\n        urls NVARCHAR(MAX) '$.urls' AS JSON\n    ) AS marvel_hero \n\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_species') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_species\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_species \nAS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS species \nFROM \n  stage1.vw_marvel_hero_base vmhb \n  CROSS APPLY OPENJSON(vmhb.species) \n  WITH (  [value] VARCHAR(256) '$') AS jCol\n  \nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_ranking') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_ranking\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_ranking AS \nSELECT \n  [name], \n  superName, \n  jCol.[key] AS RankType,\n  jCol.[value] AS RankValue\nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.ranking) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_aliases'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_aliases\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_aliases AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS aliases \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.aliases) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_authors'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_authors\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_authors AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS authors \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.authors) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_images') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_images\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_images AS \nSELECT \n  [name], \n  superName, \n  jCol.[key] AS ImageType,\n  jCol.[value] AS ImageURL\nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.images)  AS jCol\nWHERE jCol.[value] IS NOT NULL\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_partners'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_partners\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_partners AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS partners \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.partners) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_powers') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_powers\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_powers AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS powers \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.powers) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_secretIdentities'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_secretIdentities\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_secretIdentities AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS secretIdentities \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.secretIdentities) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_teams') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_teams\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_teams AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS teams \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.teams) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_urls') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_urls\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_urls AS \nSELECT \n  [name], \n  superName, \n  jCol.[key] AS URL_Source,\n  jCol.[Value] AS URL\nFROM \n  stage1.vw_marvel_hero_base vmhb \n  CROSS APPLY OPENJSON(vmhb.urls) AS jCol \nGO\n",
+					"query": "IF OBJECT_ID('stage1.vw_marvel_hero_base') IS NOT NULL  \n    DROP VIEW stage1.vw_marvel_hero_base\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_base\nAS\n\nSELECT [name], supername, [description], species, ranking,\n    aliases, authors, images, partners, powers,\n    secretIdentities, teams, urls\nFROM stage1.STG_marvel_hero_raw\n    CROSS APPLY OPENJSON(doc)\n    WITH (\n        aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n        authors NVARCHAR(MAX) '$.authors' AS JSON,\n        description VARCHAR(256),\n        images NVARCHAR(MAX) '$.images' AS JSON,\n        name VARCHAR(256),\n        partners NVARCHAR(MAX) '$.partners' AS JSON,\n        powers NVARCHAR(MAX) '$.powers' AS JSON,\n        ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n        secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n        species NVARCHAR(MAX) '$.species' AS JSON,\n        superName VARCHAR(256),\n        teams NVARCHAR(MAX) '$.teams' AS JSON,\n        urls NVARCHAR(MAX) '$.urls' AS JSON\n    ) AS marvel_hero \n\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_species') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_species\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_species \nAS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS species \nFROM \n  stage1.vw_marvel_hero_base vmhb \n  CROSS APPLY OPENJSON(vmhb.species) \n  WITH (  [value] VARCHAR(256) '$') AS jCol\n  \nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_ranking') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_ranking\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_ranking AS \nSELECT \n  [name], \n  superName, \n  jCol.[key] COLLATE SQL_Latin1_General_CP1_CI_AS AS RankType,\n  jCol.[value] AS RankValue\nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.ranking) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_aliases'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_aliases\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_aliases AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS aliases \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.aliases) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_authors'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_authors\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_authors AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS authors \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.authors) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_images') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_images\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_images AS \nSELECT \n  [name], \n  superName, \n  jCol.[key] COLLATE SQL_Latin1_General_CP1_CI_AS AS ImageType,\n  jCol.[value] AS ImageURL\nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.images)  AS jCol\nWHERE jCol.[value] IS NOT NULL\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_partners'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_partners\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_partners AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS partners \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.partners) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_powers') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_powers\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_powers AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS powers \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.powers) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID(  'stage1.vw_marvel_hero_secretIdentities'\n  ) IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_secretIdentities\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_secretIdentities AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS secretIdentities \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.secretIdentities) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_teams') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_teams\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_teams AS \nSELECT \n  [name], \n  superName, \n  jCol.[value] AS teams \nFROM \n  stage1.vw_marvel_hero_base vmhb CROSS APPLY OPENJSON(vmhb.teams) WITH (  [value] VARCHAR(256) '$'\n  ) AS jCol\nGO\n\nIF OBJECT_ID('stage1.vw_marvel_hero_urls') IS NOT NULL \n\tDROP VIEW stage1.vw_marvel_hero_urls\nGO\n\nCREATE VIEW stage1.vw_marvel_hero_urls AS \nSELECT \n  [name], \n  superName, \n  jCol.[key] COLLATE SQL_Latin1_General_CP1_CI_AS AS URL_Source,\n  jCol.[Value] AS URL\nFROM \n  stage1.vw_marvel_hero_base vmhb \n  CROSS APPLY OPENJSON(vmhb.urls) AS jCol \nGO\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -3608,26 +3628,6 @@
 			"properties": {
 				"content": {
 					"query": "DECLARE @sql VARCHAR(MAX)\n\n;WITH vws AS (\n    SELECT 'SELECT * FROM stage1.' + C.TABLE_NAME AS sql\n    FROM INFORMATION_SCHEMA.VIEWS C\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),sql),'; ' + CHAR(13) + CHAR(10))\nFROM vws\n\nPRINT @sql\n",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/DROPAllStage2AndVault')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "DECLARE @SQL VARCHAR(MAX)\n\nselect @SQL = STRING_AGG('DROP ' + REPLACE(C.TABLE_TYPE, 'BASE', '') + ' ' + CONCAT_WS('.',C.TABLE_SCHEMA, C.TABLE_NAME) + '; ',' ')\nfrom INFORMATION_SCHEMA.tables C \nWHERE C.TABLE_SCHEMA IN ('stage2','vault')\nPRINT @SQL\nEXECUTE (@SQL)",
 					"metadata": {
 						"language": "sql"
 					},
