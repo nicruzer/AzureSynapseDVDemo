@@ -1,0 +1,20 @@
+{
+	"name": "003_CREATE_Schemas",
+	"properties": {
+		"folder": {
+			"name": "Framework"
+		},
+		"content": {
+			"query": "CREATE SCHEMA source\nGO\nCREATE SCHEMA stage1\nGO\nCREATE SCHEMA stage2\nGO\nCREATE SCHEMA vault\nGO\nCREATE SCHEMA mart\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

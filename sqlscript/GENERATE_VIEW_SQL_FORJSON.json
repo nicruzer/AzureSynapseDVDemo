@@ -1,0 +1,17 @@
+{
+	"name": "GENERATE_VIEW_SQL_FORJSON",
+	"properties": {
+		"content": {
+			"query": "DECLARE @baseKeyCol VARCHAR(1000) = '[name], superName,'\nDECLARE @tableOrViewSchema VARCHAR(255) = 'stage1'\nDECLARE @tableOrViewName VARCHAR(255) = 'vw_marvel_hero_base'\nDECLARE @fqViewName VARCHAR(512) = CONCAT_WS('.',@tableOrViewSchema,@tableOrViewName)\nDECLARE @baseAlias VARCHAR(10) = 'vmhb'\nDECLARE @newLine VARCHAR(2) = CHAR(13) + CHAR(10)\nDECLARE @dropStatement VARCHAR(MAX) =\n    'IF OBJECT_ID(''{{NewViewName}}'') IS NOT NULL ' + @newLine +\n    '   DROP VIEW {{NewViewName}}' + @newLine +\n    ' ; ' + @newLine + @newLine\nDECLARE @createStatement VARCHAR(500) = 'CREATE VIEW {{NewViewName}} AS ' + @newLine\nDECLARE @sql VARCHAR(MAX)\n\n;WITH JsonFields AS (\n    SELECT C.COLUMN_NAME, LEFT(C.COLUMN_NAME, 2) AS jAlias,\n        CONCAT_WS('.',@tableOrViewSchema,REPLACE(@tableOrViewName,'_base','_' + C.COLUMN_NAME)) AS NewViewName\n    FROM INFORMATION_SCHEMA.COLUMNS C \n    WHERE C.TABLE_SCHEMA = @tableOrViewSchema\n        AND C.TABLE_NAME = @tableOrViewName\n        AND C.DATA_TYPE = 'NVARCHAR'\n        AND C.CHARACTER_MAXIMUM_LENGTH = -1\n        AND C.CHARACTER_SET_NAME = 'UNICODE'\n), statements AS (\n    SELECT CONCAT_WS(\n        ' '\n        ,REPLACE(@dropStatement,'{{NewViewName}}',jf.NewViewName)\n        ,REPLACE(@createStatement,'{{NewViewName}}',jf.NewViewName)\n        ,'SELECT'\n        ,@baseKeyCol\n        ,'jCol.[value] AS ' + jf.COLUMN_NAME + @newLine\n        ,'FROM'\n        ,@fqViewName\n        ,@baseAlias + @newLine\n        ,'CROSS APPLY OPENJSON(' + CONCAT_WS('.',@baseAlias,jf.COLUMN_NAME) + ')' + @newLine\n        ,'WITH ([value] VARCHAR(256) ''$'') AS jCol' + @newLine\n        ,'; ' + @newLine + @newLine\n    ) AS createView\n    FROM JsonFields jf\n)\n\nSELECT @sql = STRING_AGG(CONVERT(VARCHAR(MAX),createView),@newLine)\nFROM statements\n\nPRINT (@sql)\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

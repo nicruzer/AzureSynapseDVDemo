@@ -1,0 +1,20 @@
+{
+	"name": "CREATE_ADV_DATA_EDS",
+	"properties": {
+		"folder": {
+			"name": "Framework"
+		},
+		"content": {
+			"query": "IF EXISTS (select * from sys.external_data_sources where name = 'ADV_DATA_EDS')\n\tDROP EXTERNAL DATA SOURCE [ADV_DATA_EDS]\nGO\n\nCREATE EXTERNAL DATA SOURCE [ADV_DATA_EDS] WITH\n(\n\tLOCATION = 'abfss://synapsedvdemo.dfs.core.windows.net/synapsedvdemo/Data/',\n\tTYPE = HADOOP\n)\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

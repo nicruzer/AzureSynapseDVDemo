@@ -1,0 +1,61 @@
+{
+	"name": "Full Run",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute_BuildStage2",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute_GenerateNewVaultTables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "BuildStage2",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Execute_InsertRawVault",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute_BuildStage2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "InsertRawVault",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Execute_GenerateNewVaultTables",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "GenerateNewVaultTables",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}

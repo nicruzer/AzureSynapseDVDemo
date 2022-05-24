@@ -1,0 +1,22 @@
+{
+	"name": "ADLSG2_ExcelTableColumns",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Map",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "TableColumns.xlsx",
+				"folderPath": "staging/OneDrive",
+				"fileSystem": "synapsedvdemo"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	}
+}

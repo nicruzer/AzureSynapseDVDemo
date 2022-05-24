@@ -1,0 +1,17 @@
+{
+	"name": "DROPAllStage2AndVault",
+	"properties": {
+		"content": {
+			"query": "DECLARE @SQL VARCHAR(MAX)\n\nselect @SQL = STRING_AGG('DROP ' + REPLACE(C.TABLE_TYPE, 'BASE', '') + ' ' + CONCAT_WS('.',C.TABLE_SCHEMA, C.TABLE_NAME) + '; ',' ')\nfrom INFORMATION_SCHEMA.tables C \nWHERE C.TABLE_SCHEMA IN ('stage2','vault')\nPRINT @SQL\nEXECUTE (@SQL)",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

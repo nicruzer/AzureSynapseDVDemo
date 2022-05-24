@@ -1,0 +1,35 @@
+{
+	"name": "AzureDVEngineDB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDVEngineDB_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TableSchema": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"TableName": {
+				"type": "string",
+				"defaultValue": "Tables"
+			}
+		},
+		"folder": {
+			"name": "Framework"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().TableSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
+		}
+	}
+}

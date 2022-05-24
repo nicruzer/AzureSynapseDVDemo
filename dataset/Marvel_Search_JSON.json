@@ -1,0 +1,114 @@
+{
+	"name": "Marvel_Search_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "External"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "*.json",
+				"folderPath": "Data/marvel_search",
+				"fileSystem": "synapsedvdemo"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"aliases": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"authors": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"description": {
+					"type": "string"
+				},
+				"images": {
+					"type": "object",
+					"properties": {
+						"background": {
+							"type": "null"
+						},
+						"thumbnail": {
+							"type": "null"
+						}
+					}
+				},
+				"mainColor": {
+					"type": "null"
+				},
+				"name": {
+					"type": "string"
+				},
+				"partners": {
+					"type": "array"
+				},
+				"powers": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"ranking": {
+					"type": "object",
+					"properties": {
+						"comicCount": {
+							"type": "integer"
+						},
+						"eventCount": {
+							"type": "integer"
+						},
+						"pageviewCount": {
+							"type": "integer"
+						},
+						"serieCount": {
+							"type": "integer"
+						},
+						"storyCount": {
+							"type": "integer"
+						}
+					}
+				},
+				"secretIdentities": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"species": {
+					"type": "array"
+				},
+				"superName": {
+					"type": "string"
+				},
+				"teams": {
+					"type": "array"
+				},
+				"urls": {
+					"type": "object",
+					"properties": {
+						"marvel": {
+							"type": "null"
+						},
+						"wikipedia": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	}
+}

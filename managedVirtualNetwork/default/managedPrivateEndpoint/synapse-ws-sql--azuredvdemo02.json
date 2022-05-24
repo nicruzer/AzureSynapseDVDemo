@@ -1,0 +1,10 @@
+{
+	"name": "synapse-ws-sql--azuredvdemo02",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/abecf403-c605-409c-acba-6459bd193009/resourceGroups/PrimaryRsc/providers/Microsoft.Synapse/workspaces/azuredvdemo02",
+		"groupId": "sql",
+		"fqdns": [
+			"azuredvdemo02.ae2b402e-06b0-486b-b8bb-c6cee369f18e.sql.azuresynapse.net"
+		]
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "DROP All Vault Tables",
+	"properties": {
+		"content": {
+			"query": "DECLARE @Print BIT = 1\nDECLARE @Execute BIT = 0\nDECLARE @SQL VARCHAR(MAX)\nSELECT @SQL = STRING_AGG('DROP TABLE ' + CONCAT_WS('.',T.TABLE_SCHEMA, T.TABLE_NAME) + '; ', ' ')\nFROM INFORMATION_SCHEMA.TABLES T\nWHERE T.TABLE_SCHEMA = 'vault'\n\nIF @Print = 1 BEGIN PRINT @SQL END\nIF @Execute = 1 BEGIN EXECUTE (@SQL) END",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

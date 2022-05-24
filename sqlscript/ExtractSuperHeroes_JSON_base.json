@@ -1,0 +1,17 @@
+{
+	"name": "ExtractSuperHeroes_JSON_base",
+	"properties": {
+		"content": {
+			"query": "CREATE OR ALTER VIEW marvel_hero AS \nSELECT \n    base_hero.filename() AS FileName,\n    marvel_hero.[name], marvel_hero.superName, marvel_hero.[description],\n    marvel_hero.aliases, marvel_hero.authors, marvel_hero.images,\n    marvel_hero.partners, marvel_hero.powers, marvel_hero.ranking, marvel_hero.secretIdentities,\n    marvel_hero.species, marvel_hero.teams, marvel_hero.urls\nFROM OPENROWSET (\n    BULK 'https://synapsedvdemo.blob.core.windows.net/synapsedvdemo/Data/marvel_search/**'\n    ,FORMAT = 'CSV'\n    ,FIELDTERMINATOR = '0x0b'\n    ,ROWTERMINATOR = '0X0b'\n    ,FIELDQUOTE = '0x0b'\n) WITH (doc NVARCHAR(MAX)) AS base_hero\n    CROSS APPLY OPENJSON(doc)\n        WITH (\n            aliases NVARCHAR(MAX) '$.aliases' AS JSON,\n            authors NVARCHAR(MAX) '$.authors' AS JSON,\n            description VARCHAR(256),\n            images NVARCHAR(MAX) '$.images' AS JSON,\n            name VARCHAR(256),\n            partners NVARCHAR(MAX) '$.partners' AS JSON,\n            powers NVARCHAR(MAX) '$.powers' AS JSON,\n            ranking NVARCHAR(MAX) '$.ranking' AS JSON,\n            secretIdentities NVARCHAR(MAX) '$.secretIdentities' AS JSON,\n            species NVARCHAR(MAX) '$.species' AS JSON,\n            superName VARCHAR(256),\n            teams NVARCHAR(MAX) '$.teams' AS JSON,\n            urls NVARCHAR(MAX) '$.urls' AS JSON\n        ) AS marvel_hero \n/*         CROSS APPLY OPENJSON( marvel_marvel_hero.aliases )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_aliases\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.authors )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_authors\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.partners )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_partners\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.powers )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_powers\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.secretIdentities )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_secretIdentities\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.species )\n            WITH (\n                value VARCHAR(100) '$'\t\t\n            ) AS marvel_hero_species\n        CROSS APPLY OPENJSON ( marvel_marvel_hero.teams )\n            WITH (\n                value VARCHAR(256) '$'\t\t\n            ) AS marvel_hero_teams */",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "AzureDVEngine",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"name": "synapse-ws-custstgacct--azuredvdemo-synapsedvdemo",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/abecf403-c605-409c-acba-6459bd193009/resourceGroups/PrimaryRsc/providers/Microsoft.Storage/storageAccounts/synapsedvdemo",
+		"groupId": "dfs"
+	}
+}

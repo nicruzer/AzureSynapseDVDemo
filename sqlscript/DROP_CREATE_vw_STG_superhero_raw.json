@@ -1,0 +1,20 @@
+{
+	"name": "DROP_CREATE_vw_STG_superhero_raw",
+	"properties": {
+		"folder": {
+			"name": "Views"
+		},
+		"content": {
+			"query": "IF OBJECT_ID('stage1.vw_STG_superhero_raw_base') IS NOT NULL\n    DROP VIEW stage1.vw_STG_superhero_raw_base\nGO\n\nCREATE VIEW stage1.vw_STG_superhero_raw_base\nAS\n\nSELECT [NAME]\n    ,[URL]\n    ,[INTELLIGENCE]\n    ,[STRENGTH]\n    ,[SPEED]\n    ,[DURABILITY]\n    ,[POWER]\n    ,[COMBAT]\n    ,[FULL_NAME]\n    -- ,[ALTER_EGOS]\n    -- ,[ALIASES]\n    ,[PLACE_OF_BIRTH]\n    ,[FIRST_APPEARANCE]\n    ,[CREATOR]\n    ,[ALIGNMENT]\n    ,[GENDER]\n    ,[RACE]\n    ,[HEIGHT]\n    ,[WEIGHT]\n    ,[EYE_COLOR]\n    ,[HAIR_COLOR]\n    ,[OCCUPATION]\n    ,[BASE]\n    -- ,[TEAM_AFFILIATION]\n    ,[RELATIVES]\n    ,[SKIN_COLOR]\n    ,[TOTAL_POWER]\nFROM [stage1].[STG_superhero_raw]\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_superhero_raw_team_affiliation') IS NOT NULL\n    DROP VIEW stage1.vw_STG_superhero_raw_team_affiliation\nGO\n\nCREATE VIEW stage1.vw_STG_superhero_raw_team_affiliation\nAS\n\nSELECT [name], ta.[value] AS TEAM_AFFILIATION\nFROM stage1.[STG_superhero_raw] ssr \n    CROSS APPLY STRING_SPLIT(ssr.TEAM_AFFILIATION,',') AS ta\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_superhero_raw_alter_egos') IS NOT NULL\n    DROP VIEW stage1.vw_STG_superhero_raw_alter_egos\nGO\n\nCREATE VIEW stage1.vw_STG_superhero_raw_alter_egos\nAS\n\nSELECT [name], ta.[value] AS alter_egos\nFROM stage1.[STG_superhero_raw] ssr \n    CROSS APPLY STRING_SPLIT(ssr.alter_egos,',') AS ta\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_superhero_raw_aliases') IS NOT NULL\n    DROP VIEW stage1.vw_STG_superhero_raw_aliases\nGO\n\nCREATE VIEW stage1.vw_STG_superhero_raw_aliases\nAS\n\nSELECT [name], ta.[value] AS aliases\nFROM stage1.[STG_superhero_raw] ssr \n    CROSS APPLY STRING_SPLIT(ssr.aliases,',') AS ta\n\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "azuredvsdp",
+				"poolName": "azuredvsdp"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
