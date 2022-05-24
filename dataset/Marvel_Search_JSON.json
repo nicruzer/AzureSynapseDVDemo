@@ -16,7 +16,8 @@
 				"fileName": "*.json",
 				"folderPath": "Data/marvel_search",
 				"fileSystem": "synapsedvdemo"
-			}
+			},
+			"encodingName": "US-ASCII"
 		},
 		"schema": {
 			"type": "object",
