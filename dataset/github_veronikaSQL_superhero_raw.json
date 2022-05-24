@@ -16,6 +16,7 @@
 				"relativeUrl": "veronikaSQL/Superhero-DataVault/main/Data/superherodb/SUPERHERO_RAW.csv"
 			},
 			"columnDelimiter": ",",
+			"encodingName": "US-ASCII",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
