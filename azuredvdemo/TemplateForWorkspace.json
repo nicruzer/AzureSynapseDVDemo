@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'HTTPLink'"
 		},
+		"SqlServer1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SqlServer1'"
+		},
 		"azuredv-WorkspaceDefaultSqlServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'azuredv-WorkspaceDefaultSqlServer'"
@@ -31,9 +35,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'azuredvdemo-WorkspaceDefaultSqlServer'"
 		},
-		"SqlServer1_connectionString": {
+		"AzureDVEngine_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SqlServer1'"
+			"metadata": "Secure string for 'connectionString' of 'AzureDVEngine'"
 		},
 		"HTTPLink_properties_typeProperties_url": {
 			"type": "string",
@@ -117,7 +121,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "SqlServerSource",
+								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
 									"value": "SELECT Stage2ViewDropSQL,\n    Stage2ViewCreateSQL,\n    Stage2TableDropSQL,\n    Stage2TableCreateSQL\nFROM dbo.fn_GetStage2SQL()",
 									"type": "Expression"
@@ -126,12 +130,9 @@
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "AzureDVEngineDB",
+								"referenceName": "AzureDVEngine",
 								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "dbo",
-									"TableName": "Tables"
-								}
+								"parameters": {}
 							},
 							"firstRowOnly": false
 						}
@@ -312,7 +313,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "SqlServerSource",
+								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
 									"value": "SELECT\n    [SourceView],\n    [TargetView],\n    [TargetFQTableName],\n    [TargetTableKey],\n    [TargetEntityAbbreviation],\n    [DropTargetViewSQL],\n    [CreateTargetViewSQL],\n    [InsertVaultTableSQL]\nFROM dbo.fn_RawVaultSQL()",
 									"type": "Expression"
@@ -321,12 +322,9 @@
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "AzureDVEngineDB",
+								"referenceName": "AzureDVEngine",
 								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "dbo",
-									"TableName": "Tables"
-								}
+								"parameters": {}
 							},
 							"firstRowOnly": false
 						}
@@ -426,7 +424,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngine')]",
 				"[concat(variables('workspaceId'), '/linkedServices/AzureDVDemoSDP')]"
 			]
 		},
@@ -692,7 +690,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "SqlServerSource",
+								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
 									"value": "SELECT TableId, VaultTableSQL\nFROM dbo.fn_GetVaultTableSQL()",
 									"type": "Expression"
@@ -701,12 +699,9 @@
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "AzureDVEngineDB",
+								"referenceName": "AzureDVEngine",
 								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "dbo",
-									"TableName": "Tables"
-								}
+								"parameters": {}
 							},
 							"firstRowOnly": false
 						}
@@ -774,7 +769,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngine')]",
 				"[concat(variables('workspaceId'), '/linkedServices/azuredv-WorkspaceDefaultSqlServer')]"
 			]
 		},
@@ -855,7 +850,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "SqlServerSource",
+								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
 									"value": "SELECT rvs.TargetFQTableName,\n    STRING_AGG(\n        CONVERT(VARCHAR(MAX),rvs.InsertVaultTableSQL),\n        ' ' + CHAR(13) + CHAR(10)\n    ) WITHIN GROUP (ORDER BY rvs.TargetView) AS InsertVaultTableSQL\nFROM [dbo].[fn_RawVaultSQL]() rvs\nGROUP BY TargetFQTableName",
 									"type": "Expression"
@@ -864,12 +859,9 @@
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "AzureDVEngineDB",
+								"referenceName": "AzureDVEngine",
 								"type": "DatasetReference",
-								"parameters": {
-									"TableSchema": "dbo",
-									"TableName": "Tables"
-								}
+								"parameters": {}
 							},
 							"firstRowOnly": false
 						}
@@ -934,7 +926,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/AzureDVEngineDB')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureDVEngine')]",
 				"[concat(variables('workspaceId'), '/linkedServices/AzureDVDemoSDP')]"
 			]
 		},
@@ -1227,7 +1219,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureDVEngineDB_LS",
+					"referenceName": "SqlServer1",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -1258,7 +1250,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngineDB_LS')]"
+				"[concat(variables('workspaceId'), '/linkedServices/SqlServer1')]"
 			]
 		},
 		{
@@ -2256,6 +2248,25 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SqlServer1')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('SqlServer1_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/azuredv-WorkspaceDefaultSqlServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -3235,14 +3246,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/SqlServer1')]",
+			"name": "[concat(parameters('workspaceName'), '/AzureDVEngine')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"type": "SqlServer",
+				"type": "AzureSqlDatabase",
 				"typeProperties": {
-					"connectionString": "[parameters('SqlServer1_connectionString')]"
+					"connectionString": "[parameters('AzureDVEngine_connectionString')]"
 				},
 				"connectVia": {
 					"referenceName": "AutoResolveIntegrationRuntime",
@@ -3251,6 +3262,27 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureDVEngine')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDVEngine",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Framework"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDVEngine')]"
 			]
 		}
 	]

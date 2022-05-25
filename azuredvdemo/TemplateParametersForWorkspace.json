@@ -17,13 +17,16 @@
 		"HTTPLink_password": {
 			"value": ""
 		},
+		"SqlServer1_connectionString": {
+			"value": ""
+		},
 		"azuredv-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
 		"azuredvdemo-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
-		"SqlServer1_connectionString": {
+		"AzureDVEngine_connectionString": {
 			"value": ""
 		},
 		"HTTPLink_properties_typeProperties_url": {
