@@ -2,7 +2,7 @@
 	"name": "AzureDVEngineDB",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureDVEngineDB_LS",
+			"referenceName": "SqlServer1",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
