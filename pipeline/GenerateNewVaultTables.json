@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlServerSource",
+						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
 							"value": "SELECT TableId, VaultTableSQL\nFROM dbo.fn_GetVaultTableSQL()",
 							"type": "Expression"
@@ -25,12 +25,8 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureDVEngineDB",
-						"type": "DatasetReference",
-						"parameters": {
-							"TableSchema": "dbo",
-							"TableName": "Tables"
-						}
+						"referenceName": "AzureDVEngine",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
