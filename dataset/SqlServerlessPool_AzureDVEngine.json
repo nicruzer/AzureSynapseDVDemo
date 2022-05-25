@@ -62,7 +62,7 @@
 			"table": "marvel_search"
 		},
 		"sqlPool": {
-			"referenceName": "azuredvsdpdev",
+			"referenceName": "azuredvsdp",
 			"type": "SqlPoolReference"
 		}
 	}
