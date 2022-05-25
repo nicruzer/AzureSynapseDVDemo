@@ -19,18 +19,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSQLSampleDB'"
 		},
-		"GitHub_DataSource_credential": {
-			"type": "secureString",
-			"metadata": "Secure string for 'credential' of 'GitHub_DataSource'"
-		},
-		"GitHub_REST_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'GitHub_REST'"
-		},
-		"GitHub_web_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'GitHub_web'"
-		},
 		"HTTPLink_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'HTTPLink'"
@@ -43,33 +31,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'azuredvdemo-WorkspaceDefaultSqlServer'"
 		},
-		"azuredvdemo02-WorkspaceDefaultSqlServer_connectionString": {
+		"SqlServer1_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'azuredvdemo02-WorkspaceDefaultSqlServer'"
-		},
-		"AzureDV_keyVault_properties_typeProperties_baseUrl": {
-			"type": "string",
-			"defaultValue": "https://AzureDVKeyVault.vault.azure.net/"
-		},
-		"GitHub_DataSource_properties_typeProperties_username": {
-			"type": "string",
-			"defaultValue": "nicruzer"
-		},
-		"GitHub_REST_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://github.com/veronikaSQL/Superhero-DataVault.git"
-		},
-		"GitHub_REST_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "nicruzer"
-		},
-		"GitHub_web_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://github.com/"
-		},
-		"GitHub_web_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "nicruzer"
+			"metadata": "Secure string for 'connectionString' of 'SqlServer1'"
 		},
 		"HTTPLink_properties_typeProperties_url": {
 			"type": "string",
@@ -80,10 +44,6 @@
 			"defaultValue": "nicruzer"
 		},
 		"azuredvdemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://synapsedvdemo.dfs.core.windows.net"
-		},
-		"azuredvdemo02-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://synapsedvdemo.dfs.core.windows.net"
 		}
@@ -1250,6 +1210,7 @@
 						"fileSystem": "synapsedvdemo"
 					},
 					"columnDelimiter": ",",
+					"encodingName": "US-ASCII",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -1372,7 +1333,8 @@
 						"type": "AzureBlobFSLocation",
 						"folderPath": "Data/marvel_search",
 						"fileSystem": "synapsedvdemo"
-					}
+					},
+					"encodingName": "US-ASCII"
 				},
 				"schema": {
 					"type": "object",
@@ -1494,7 +1456,8 @@
 						"fileName": "*.json",
 						"folderPath": "Data/marvel_search",
 						"fileSystem": "synapsedvdemo"
-					}
+					},
+					"encodingName": "US-ASCII"
 				},
 				"schema": {
 					"type": "object",
@@ -1588,31 +1551,6 @@
 						}
 					}
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Parquet1')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "azuredvdemo-WorkspaceDefaultStorage",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "Stage2",
-						"fileSystem": "synapsedvdemo"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
@@ -1728,6 +1666,7 @@
 						"fileSystem": "synapsedvdemo"
 					},
 					"columnDelimiter": ",",
+					"encodingName": "US-ASCII",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -1736,361 +1675,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/azuredvdemo-WorkspaceDefaultStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/github_jbesomi_superheroNLPDataset')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "HTTPLink",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "HttpServerLocation",
-						"relativeUrl": "jbesomi/texthero/master/dataset/superheroes_nlp_dataset.csv"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "name",
-						"type": "String"
-					},
-					{
-						"name": "real_name",
-						"type": "String"
-					},
-					{
-						"name": "full_name",
-						"type": "String"
-					},
-					{
-						"name": "overall_score",
-						"type": "String"
-					},
-					{
-						"name": "history_text",
-						"type": "String"
-					},
-					{
-						"name": "powers_text",
-						"type": "String"
-					},
-					{
-						"name": "intelligence_score",
-						"type": "String"
-					},
-					{
-						"name": "strength_score",
-						"type": "String"
-					},
-					{
-						"name": "speed_score",
-						"type": "String"
-					},
-					{
-						"name": "durability_score",
-						"type": "String"
-					},
-					{
-						"name": "power_score",
-						"type": "String"
-					},
-					{
-						"name": "combat_score",
-						"type": "String"
-					},
-					{
-						"name": "superpowers",
-						"type": "String"
-					},
-					{
-						"name": "alter_egos",
-						"type": "String"
-					},
-					{
-						"name": "aliases",
-						"type": "String"
-					},
-					{
-						"name": "place_of_birth",
-						"type": "String"
-					},
-					{
-						"name": "first_appearance",
-						"type": "String"
-					},
-					{
-						"name": "creator",
-						"type": "String"
-					},
-					{
-						"name": "alignment",
-						"type": "String"
-					},
-					{
-						"name": "occupation",
-						"type": "String"
-					},
-					{
-						"name": "base",
-						"type": "String"
-					},
-					{
-						"name": "teams",
-						"type": "String"
-					},
-					{
-						"name": "relatives",
-						"type": "String"
-					},
-					{
-						"name": "gender",
-						"type": "String"
-					},
-					{
-						"name": "type_race",
-						"type": "String"
-					},
-					{
-						"name": "height",
-						"type": "String"
-					},
-					{
-						"name": "weight",
-						"type": "String"
-					},
-					{
-						"name": "eye_color",
-						"type": "String"
-					},
-					{
-						"name": "hair_color",
-						"type": "String"
-					},
-					{
-						"name": "skin_color",
-						"type": "String"
-					},
-					{
-						"name": "img",
-						"type": "String"
-					},
-					{
-						"name": "has_electrokinesis",
-						"type": "String"
-					},
-					{
-						"name": "has_energy_constructs",
-						"type": "String"
-					},
-					{
-						"name": "has_mind_control_resistance",
-						"type": "String"
-					},
-					{
-						"name": "has_matter_manipulation",
-						"type": "String"
-					},
-					{
-						"name": "has_telepathy_resistance",
-						"type": "String"
-					},
-					{
-						"name": "has_mind_control",
-						"type": "String"
-					},
-					{
-						"name": "has_enhanced_hearing",
-						"type": "String"
-					},
-					{
-						"name": "has_dimensional_travel",
-						"type": "String"
-					},
-					{
-						"name": "has_element_control",
-						"type": "String"
-					},
-					{
-						"name": "has_size_changing",
-						"type": "String"
-					},
-					{
-						"name": "has_fire_resistance",
-						"type": "String"
-					},
-					{
-						"name": "has_fire_control",
-						"type": "String"
-					},
-					{
-						"name": "has_dexterity",
-						"type": "String"
-					},
-					{
-						"name": "has_reality_warping",
-						"type": "String"
-					},
-					{
-						"name": "has_illusions",
-						"type": "String"
-					},
-					{
-						"name": "has_energy_beams",
-						"type": "String"
-					},
-					{
-						"name": "has_peak_human_condition",
-						"type": "String"
-					},
-					{
-						"name": "has_shapeshifting",
-						"type": "String"
-					},
-					{
-						"name": "has_heat_resistance",
-						"type": "String"
-					},
-					{
-						"name": "has_jump",
-						"type": "String"
-					},
-					{
-						"name": "has_self-sustenance",
-						"type": "String"
-					},
-					{
-						"name": "has_energy_absorption",
-						"type": "String"
-					},
-					{
-						"name": "has_cold_resistance",
-						"type": "String"
-					},
-					{
-						"name": "has_magic",
-						"type": "String"
-					},
-					{
-						"name": "has_telekinesis",
-						"type": "String"
-					},
-					{
-						"name": "has_toxin_and_disease_resistance",
-						"type": "String"
-					},
-					{
-						"name": "has_telepathy",
-						"type": "String"
-					},
-					{
-						"name": "has_regeneration",
-						"type": "String"
-					},
-					{
-						"name": "has_immortality",
-						"type": "String"
-					},
-					{
-						"name": "has_teleportation",
-						"type": "String"
-					},
-					{
-						"name": "has_force_fields",
-						"type": "String"
-					},
-					{
-						"name": "has_energy_manipulation",
-						"type": "String"
-					},
-					{
-						"name": "has_endurance",
-						"type": "String"
-					},
-					{
-						"name": "has_longevity",
-						"type": "String"
-					},
-					{
-						"name": "has_weapon-based_powers",
-						"type": "String"
-					},
-					{
-						"name": "has_energy_blasts",
-						"type": "String"
-					},
-					{
-						"name": "has_enhanced_senses",
-						"type": "String"
-					},
-					{
-						"name": "has_invulnerability",
-						"type": "String"
-					},
-					{
-						"name": "has_stealth",
-						"type": "String"
-					},
-					{
-						"name": "has_marksmanship",
-						"type": "String"
-					},
-					{
-						"name": "has_flight",
-						"type": "String"
-					},
-					{
-						"name": "has_accelerated_healing",
-						"type": "String"
-					},
-					{
-						"name": "has_weapons_master",
-						"type": "String"
-					},
-					{
-						"name": "has_intelligence",
-						"type": "String"
-					},
-					{
-						"name": "has_reflexes",
-						"type": "String"
-					},
-					{
-						"name": "has_super_speed",
-						"type": "String"
-					},
-					{
-						"name": "has_durability",
-						"type": "String"
-					},
-					{
-						"name": "has_stamina",
-						"type": "String"
-					},
-					{
-						"name": "has_agility",
-						"type": "String"
-					},
-					{
-						"name": "has_super_strength",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/HTTPLink')]"
 			]
 		},
 		{
@@ -2113,6 +1697,7 @@
 						"relativeUrl": "veronikaSQL/Superhero-DataVault/main/Data/superherodb/SUPERHERO_RAW.csv"
 					},
 					"columnDelimiter": ",",
+					"encodingName": "US-ASCII",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -2251,6 +1836,7 @@
 						"fileSystem": "synapsedvdemo"
 					},
 					"columnDelimiter": ",",
+					"encodingName": "US-ASCII",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -2625,19 +2211,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/AzureDV_keyVault')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('AzureDV_keyVault_properties_typeProperties_baseUrl')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/AzureSQLSampleDB')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -2646,85 +2219,6 @@
 				"type": "AzureSqlDatabase",
 				"typeProperties": {
 					"connectionString": "[parameters('AzureSQLSampleDB_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/GitHub_DataSource')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"description": "Connect to GitHub to extract sample files and data",
-				"annotations": [
-					"Github"
-				],
-				"type": "GitHub",
-				"typeProperties": {
-					"username": "[parameters('GitHub_DataSource_properties_typeProperties_username')]",
-					"credential": {
-						"type": "SecureString",
-						"value": "[parameters('GitHub_DataSource_credential')]"
-					},
-					"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIlNZTkFQU0VAMzY0MDEyNTYtMEYxOC00MzM1LUE0NEQtODVERDA4QkFFMjBCXzYwZjE3YzA5LTg3MjYtNGM3YS1iNTEzLTQ4MGYzYmNhZDg3ZSINCn0="
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/GitHub_REST')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"type": "RestService",
-				"typeProperties": {
-					"url": "[parameters('GitHub_REST_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": true,
-					"authenticationType": "Basic",
-					"userName": "[parameters('GitHub_REST_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('GitHub_REST_password')]"
-					}
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/GitHub_web')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"type": "HttpServer",
-				"typeProperties": {
-					"url": "[parameters('GitHub_web_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": true,
-					"authenticationType": "Basic",
-					"userName": "[parameters('GitHub_web_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('GitHub_web_password')]"
-					}
 				},
 				"connectVia": {
 					"referenceName": "AutoResolveIntegrationRuntime",
@@ -2818,49 +2312,6 @@
 				"type": "AzureBlobFS",
 				"typeProperties": {
 					"url": "[parameters('azuredvdemo-WorkspaceDefaultStorage_properties_typeProperties_url')]"
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/azuredvdemo02-WorkspaceDefaultSqlServer')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"parameters": {
-					"DBName": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlDW",
-				"typeProperties": {
-					"connectionString": "[parameters('azuredvdemo02-WorkspaceDefaultSqlServer_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/azuredvdemo02-WorkspaceDefaultStorage')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('azuredvdemo02-WorkspaceDefaultStorage_properties_typeProperties_url')]"
 				},
 				"connectVia": {
 					"referenceName": "AutoResolveIntegrationRuntime",
@@ -3116,8 +2567,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3139,8 +2590,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3162,8 +2613,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3185,8 +2636,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3203,13 +2654,13 @@
 					"name": "Framework"
 				},
 				"content": {
-					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '2N0&b#PNOAN'\nGO\nALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY\nGO\n\nCREATE DATABASE SCOPED CREDENTIAL MSI_CRED\nWITH IDENTITY = 'Managed Service Identity';\n\nIF EXISTS (select * from sys.external_data_sources where name = 'EDS_SynapseDvDemo')\n\tDROP EXTERNAL DATA SOURCE [EDS_SynapseDvDemo]\nGO\n\nCREATE EXTERNAL DATA SOURCE [EDS_SynapseDvDemo] WITH\n(\n\tLOCATION = 'abfss://synapsedvdemo@synapsedvdemo.dfs.core.windows.net',\n\tCREDENTIAL = [MSI_CRED]\n)\n\nCREATE EXTERNAL FILE FORMAT [EFF_Parquet] WITH \n(\n\tFORMAT_TYPE = PARQUET\n)\n\nIF EXISTS(SELECT * FROM sys.external_file_formats WHERE NAME = 'EFF_CSV_NoHeader')\n    DROP EXTERNAL FILE FORMAT [EFF_CSV_NoHeader]\nGO\n\nCREATE EXTERNAL FILE FORMAT EFF_CSV_NoHeader\nWITH (FORMAT_TYPE = DELIMITEDTEXT,\n      FORMAT_OPTIONS(\n          FIELD_TERMINATOR = '|',\n          STRING_DELIMITER = '`',\n          USE_TYPE_DEFAULT = False)\n)\n\nDROP EXTERNAL TABLE dbo.marvel_hero_raw",
+					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '2N0&b#PNOAN'\nGO\nALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY\nGO\n\nCREATE DATABASE SCOPED CREDENTIAL MSI_CRED\nWITH IDENTITY = 'Managed Service Identity';\n\nIF EXISTS (select * from sys.external_data_sources where name = 'EDS_SynapseDvDemo')\n\tDROP EXTERNAL DATA SOURCE [EDS_SynapseDvDemo]\nGO\n\nCREATE EXTERNAL DATA SOURCE [EDS_SynapseDvDemo] WITH\n(\n\tLOCATION = 'abfss://synapsedvdemo@synapsedvdemo.dfs.core.windows.net',\n\tCREDENTIAL = [MSI_CRED]\n)\n\nCREATE EXTERNAL FILE FORMAT [EFF_Parquet] WITH \n(\n\tFORMAT_TYPE = PARQUET\n)\n\nIF EXISTS(SELECT * FROM sys.external_file_formats WHERE NAME = 'EFF_CSV_NoHeader')\n    DROP EXTERNAL FILE FORMAT [EFF_CSV_NoHeader]\nGO\n\nCREATE EXTERNAL FILE FORMAT EFF_CSV_NoHeader\nWITH (FORMAT_TYPE = DELIMITEDTEXT,\n      FORMAT_OPTIONS(\n          FIELD_TERMINATOR = '|',\n          STRING_DELIMITER = '`',\n          USE_TYPE_DEFAULT = False)\n)\n\n",
 					"metadata": {
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "AzureDVEngine",
-						"poolName": "Built-in"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3231,8 +2682,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "AzureDVEngine",
-						"poolName": "Built-in"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3254,8 +2705,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3317,8 +2768,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3337,8 +2788,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3380,8 +2831,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3400,8 +2851,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3418,13 +2869,13 @@
 					"name": "Views"
 				},
 				"content": {
-					"query": "IF OBJECT_ID('stage1.vw_STG_kaggle_superhero_base') IS NOT NULL \n    DROP VIEW stage1.vw_STG_kaggle_superhero_base\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_base\nAS\nSELECT sks.[name],\n       sks.[real_name],\n       sks.full_name,\n       sks.overall_score,\n       LEFT(sks.history_text, 8000) AS history_text, -- To allow for clustered columnstore index\n       sks.powers_text,\n       sks.intelligence_score,\n       sks.strength_score,\n       sks.speed_score,\n       sks.durability_score,\n       sks.power_score,\n       sks.combat_score,\n       sks.place_of_birth,\n       sks.first_appearance,\n       sks.creator,\n       sks.alignment,\n       sks.occupation,\n       sks.base,\n       sks.gender,\n       sks.type_race,\n       sks.height,\n       sks.weight,\n       sks.eye_color,\n       sks.hair_color,\n       sks.skin_color,\n       sks.img,\n       sks.has_electrokinesis,\n       sks.has_energy_constructs,\n       sks.has_mind_control_resistance,\n       sks.has_matter_manipulation,\n       sks.has_telepathy_resistance,\n       sks.has_mind_control,\n       sks.has_enhanced_hearing,\n       sks.has_dimensional_travel,\n       sks.has_element_control,\n       sks.has_size_changing,\n       sks.has_fire_resistance,\n       sks.has_fire_control,\n       sks.has_dexterity,\n       sks.has_reality_warping,\n       sks.has_illusions,\n       sks.has_energy_beams,\n       sks.has_peak_human_condition,\n       sks.has_shapeshifting,\n       sks.has_heat_resistance,\n       sks.has_jump,\n       sks.[has_self-sustenance],\n       sks.has_energy_absorption,\n       sks.has_cold_resistance,\n       sks.has_magic,\n       sks.has_telekinesis,\n       sks.has_toxin_and_disease_resistance,\n       sks.has_telepathy,\n       sks.has_regeneration,\n       sks.has_immortality,\n       sks.has_teleportation,\n       sks.has_force_fields,\n       sks.has_energy_manipulation,\n       sks.has_endurance,\n       sks.has_longevity,\n       sks.[has_weapon-based_powers],\n       sks.has_energy_blasts,\n       sks.has_enhanced_senses,\n       sks.has_invulnerability,\n       sks.has_stealth,\n       sks.has_marksmanship,\n       sks.has_flight,\n       sks.has_accelerated_healing,\n       sks.has_weapons_master,\n       sks.has_intelligence,\n       sks.has_reflexes,\n       sks.has_super_speed,\n       sks.has_durability,\n       sks.has_stamina,\n       sks.has_agility,\n       sks.has_super_strength\nFROM stage1.STG_kaggle_superhero sks\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_superpowers') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_superpowers\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_superpowers\nAS \n\nWITH clean AS (\n    SELECT sks.[name],\n        REPLACE(sks.superpowers,'''','\"') AS superpowers\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT c.[name], jd.superpower\nFROM clean c\n    CROSS APPLY OPENJSON(c.superpowers)\n        WITH (\n            superpower VARCHAR(256) '$'\n        ) AS jd\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_alter_egos') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_alter_egos\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_alter_egos\nAS \n\nWITH clean AS (\n    SELECT sks.[name],\n        REPLACE (\n            REPLACE(\n                REPLACE(\n                    REPLACE(sks.alter_egos,'[''','[\"'), ''']', '\"]')\n                    , ''',','\",'\n                ), ', ''', ', \"'\n         ) AS alter_egos\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT c.[name], jd.[alter_ego]\nFROM clean c\n    CROSS APPLY OPENJSON(c.alter_egos)\n        WITH (\n            [alter_ego] VARCHAR(256) '$'\n        ) AS jd\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_aliases') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_aliases\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_aliases\nAS \n\nWITH clean AS (\n    SELECT sks.[name],\n        REPLACE(\n            REPLACE(\n                REPLACE (\n                    REPLACE(\n                        REPLACE(\n                            REPLACE(sks.aliases,'[''',''), ''']', '')\n                            , ''',',','\n                        ), ', ''', ', '\n                ), '[\"',''\n            ), '\"]',''\n        ) AS [alias]\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT c.[name], jd.[value] AS [alias]\nFROM clean c\n    CROSS APPLY STRING_SPLIT(c.[alias],',') AS jd\nWHERE jd.[value] <> ''\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_teams') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_teams\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_teams\nAS\n\nWITH clean AS (\n    SELECT [name], \n            REPLACE (\n                REPLACE(\n                    REPLACE(\n                        REPLACE(sks.teams,'[''','[\"'), ''']', '\"]')\n                        , ''',','\",'\n                    ), ', ''', ', \"'\n            ) AS teams\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT [name], jd.team\nFROM clean c\n    CROSS APPLY OPENJSON(c.teams)\n        WITH (\n            team VARCHAR(256) '$'\n        ) AS jd\n\nGO",
+					"query": "IF OBJECT_ID('stage1.vw_STG_kaggle_superhero_base') IS NOT NULL \n    DROP VIEW stage1.vw_STG_kaggle_superhero_base\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_base\nAS\nSELECT sks.[name],\n       sks.[real_name],\n       sks.full_name,\n       sks.overall_score,\n       LEFT(sks.history_text, 4000) AS history_text, -- To allow for clustered columnstore index\n       LEFT(sks.powers_text, 4000) AS powers_text,\n       sks.intelligence_score,\n       sks.strength_score,\n       sks.speed_score,\n       sks.durability_score,\n       sks.power_score,\n       sks.combat_score,\n       sks.place_of_birth,\n       sks.first_appearance,\n       sks.creator,\n       sks.alignment,\n       sks.occupation,\n       sks.base,\n       sks.gender,\n       sks.type_race,\n       sks.height,\n       sks.weight,\n       sks.eye_color,\n       sks.hair_color,\n       sks.skin_color,\n       sks.img,\n       sks.has_electrokinesis,\n       sks.has_energy_constructs,\n       sks.has_mind_control_resistance,\n       sks.has_matter_manipulation,\n       sks.has_telepathy_resistance,\n       sks.has_mind_control,\n       sks.has_enhanced_hearing,\n       sks.has_dimensional_travel,\n       sks.has_element_control,\n       sks.has_size_changing,\n       sks.has_fire_resistance,\n       sks.has_fire_control,\n       sks.has_dexterity,\n       sks.has_reality_warping,\n       sks.has_illusions,\n       sks.has_energy_beams,\n       sks.has_peak_human_condition,\n       sks.has_shapeshifting,\n       sks.has_heat_resistance,\n       sks.has_jump,\n       sks.[has_self-sustenance],\n       sks.has_energy_absorption,\n       sks.has_cold_resistance,\n       sks.has_magic,\n       sks.has_telekinesis,\n       sks.has_toxin_and_disease_resistance,\n       sks.has_telepathy,\n       sks.has_regeneration,\n       sks.has_immortality,\n       sks.has_teleportation,\n       sks.has_force_fields,\n       sks.has_energy_manipulation,\n       sks.has_endurance,\n       sks.has_longevity,\n       sks.[has_weapon-based_powers],\n       sks.has_energy_blasts,\n       sks.has_enhanced_senses,\n       sks.has_invulnerability,\n       sks.has_stealth,\n       sks.has_marksmanship,\n       sks.has_flight,\n       sks.has_accelerated_healing,\n       sks.has_weapons_master,\n       sks.has_intelligence,\n       sks.has_reflexes,\n       sks.has_super_speed,\n       sks.has_durability,\n       sks.has_stamina,\n       sks.has_agility,\n       sks.has_super_strength\nFROM stage1.STG_kaggle_superhero sks\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_superpowers') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_superpowers\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_superpowers\nAS \n\nWITH clean AS (\n    SELECT sks.[name],\n        REPLACE(sks.superpowers,'''','\"') AS superpowers\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT c.[name], jd.superpower\nFROM clean c\n    CROSS APPLY OPENJSON(c.superpowers)\n        WITH (\n            superpower VARCHAR(256) '$'\n        ) AS jd\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_alter_egos') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_alter_egos\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_alter_egos\nAS \n\nWITH clean AS (\n    SELECT sks.[name],\n        REPLACE (\n            REPLACE(\n                REPLACE(\n                    REPLACE(sks.alter_egos,'[''','[\"'), ''']', '\"]')\n                    , ''',','\",'\n                ), ', ''', ', \"'\n         ) AS alter_egos\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT c.[name], jd.[alter_ego]\nFROM clean c\n    CROSS APPLY OPENJSON(c.alter_egos)\n        WITH (\n            [alter_ego] VARCHAR(256) '$'\n        ) AS jd\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_aliases') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_aliases\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_aliases\nAS \n\nWITH clean AS (\n    SELECT sks.[name],\n        REPLACE(\n            REPLACE(\n                REPLACE (\n                    REPLACE(\n                        REPLACE(\n                            REPLACE(sks.aliases,'[''',''), ''']', '')\n                            , ''',',','\n                        ), ', ''', ', '\n                ), '[\"',''\n            ), '\"]',''\n        ) AS [alias]\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT c.[name], jd.[value] AS [alias]\nFROM clean c\n    CROSS APPLY STRING_SPLIT(c.[alias],',') AS jd\nWHERE jd.[value] <> ''\n\nGO\n\nIF OBJECT_ID('stage1.vw_STG_kaggle_superhero_teams') IS NOT NULL\n    DROP VIEW stage1.vw_STG_kaggle_superhero_teams\nGO\n\nCREATE VIEW stage1.vw_STG_kaggle_superhero_teams\nAS\n\nWITH clean AS (\n    SELECT [name], \n            REPLACE (\n                REPLACE(\n                    REPLACE(\n                        REPLACE(sks.teams,'[''','[\"'), ''']', '\"]')\n                        , ''',','\",'\n                    ), ', ''', ', \"'\n            ) AS teams\n    FROM stage1.STG_kaggle_superhero sks\n)\n\nSELECT [name], jd.team\nFROM clean c\n    CROSS APPLY OPENJSON(c.teams)\n        WITH (\n            team VARCHAR(256) '$'\n        ) AS jd\n\nGO",
 					"metadata": {
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3446,8 +2897,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3469,8 +2920,8 @@
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "azuredvsdp",
-						"poolName": "azuredvsdp"
+						"databaseName": "azuredvsdpdev",
+						"poolName": "azuredvsdpdev"
 					},
 					"resultLimit": 5000
 				},
@@ -3781,6 +3232,25 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SqlServer1')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('SqlServer1_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		}
 	]
