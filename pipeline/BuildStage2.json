@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlServerSource",
+						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
 							"value": "SELECT Stage2ViewDropSQL,\n    Stage2ViewCreateSQL,\n    Stage2TableDropSQL,\n    Stage2TableCreateSQL\nFROM dbo.fn_GetStage2SQL()",
 							"type": "Expression"
@@ -25,12 +25,8 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureDVEngineDB",
-						"type": "DatasetReference",
-						"parameters": {
-							"TableSchema": "dbo",
-							"TableName": "Tables"
-						}
+						"referenceName": "AzureDVEngine",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
@@ -211,7 +207,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlServerSource",
+						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
 							"value": "SELECT\n    [SourceView],\n    [TargetView],\n    [TargetFQTableName],\n    [TargetTableKey],\n    [TargetEntityAbbreviation],\n    [DropTargetViewSQL],\n    [CreateTargetViewSQL],\n    [InsertVaultTableSQL]\nFROM dbo.fn_RawVaultSQL()",
 							"type": "Expression"
@@ -220,12 +216,8 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureDVEngineDB",
-						"type": "DatasetReference",
-						"parameters": {
-							"TableSchema": "dbo",
-							"TableName": "Tables"
-						}
+						"referenceName": "AzureDVEngine",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}

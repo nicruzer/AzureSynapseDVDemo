@@ -10,8 +10,8 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "azuredvsdp",
-				"poolName": "azuredvsdp"
+				"databaseName": "azuredvsdpdev",
+				"poolName": "azuredvsdpdev"
 			},
 			"resultLimit": 5000
 		},

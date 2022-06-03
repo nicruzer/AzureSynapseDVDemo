@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlServerSource",
+						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
 							"value": "SELECT rvs.TargetFQTableName,\n    STRING_AGG(\n        CONVERT(VARCHAR(MAX),rvs.InsertVaultTableSQL),\n        ' ' + CHAR(13) + CHAR(10)\n    ) WITHIN GROUP (ORDER BY rvs.TargetView) AS InsertVaultTableSQL\nFROM [dbo].[fn_RawVaultSQL]() rvs\nGROUP BY TargetFQTableName",
 							"type": "Expression"
@@ -25,12 +25,8 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureDVEngineDB",
-						"type": "DatasetReference",
-						"parameters": {
-							"TableSchema": "dbo",
-							"TableName": "Tables"
-						}
+						"referenceName": "AzureDVEngine",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
